@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<title>记一次博客接入Gitalk出现403问题的解决过程 | Memorykk&#39;s blog</title>
+<link rel="shortcut icon" href="https://memorykki.github.io/favicon.ico">
+<link href="https://memorykki.github.io/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_ntebi130zaa.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Memorykk&#39;s blog » Feed" href="https://memorykki.github.io/atom.xml">
+
+
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-61KQ1XYC4T"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-61KQ1XYC4T');
+  </script>
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?b89f2652bbc909bb41e06c21123d1797";
+      var s = document.getElementsByTagName("script")[0]; 
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+    <script src='//unpkg.com/valine/dist/Valine.min.js'></script>
+
+  <meta name="description" content="小站的评论系统始终无法接入 Gitalk，提示 403 Error
+
+
+目录
+
+问题
+我的解决过程
+其他解决过程
+
+起因
+思路
+经验
+
+
+部署自己的 CORSproxy
+参考链接
+
+
+问题
+最近博客接入 Gitalk 评论系统时，始终报错 ..." />
+  <meta name="keywords" content="Gitalk" />
+
+  <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/2.3.1/css/bootstrap.css" rel="stylesheet">
+  <link href="https://memorykki.github.io/media/css/jquery.tocify.css" rel="stylesheet">
+
+  <script src="https://cdn.bootcdn.net/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+  <script src="https://memorykki.github.io/media/scripts/jquery.ui.core.js"></script>
+  <script src="https://memorykki.github.io/media/scripts/bootstrap.js"></script>
+  <script src="https://memorykki.github.io/media/scripts/jquery.tocify.js"></script>
+
+  <style>
+    #toc .nav-list > .active > a{
+      border: 1px solid #000;
+      border-radius: 10px;
+      background-color: unset;
+    }
+    #toc a {
+      color: #000000;
+    }
+    #toc {
+      border: 0;
+    }
+  </style>
+</head>
+
+<body style="height: auto">
+  <div id="toc" style="right: 20px; top: 80px"></div>
+  <div class="main animated">
+    <div class="header animated fadeInDown">
+  <div class="site_title_container">
+    <div class="site_title">
+      <a href="https://memorykki.github.io">
+        Memorykk&#39;s blog
+      </a>
+    </div>
+  </div>
+  <div class="my_socials">
+    
+      <a href="mailto:memorykki@gmail.com">
+        <i class="iconfont"><svg t="1672505472759" class="icon" viewBox="-400 -400 1600 1600" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="656" width="25" height="25"><path d="M741.12 305.737143H276.114286L511.817143 528.457143z" fill="#606060" p-id="657"></path><path d="M524.8 566.857143a18.651429 18.651429 0 0 1-25.417143 0.182857l-62.72-59.245714L256 668.525714v49.737143h512v-49.737143l-181.577143-161.645714L524.8 566.857143zM256 337.005714v282.514286l153.965714-136.96zM768 619.52V330.788571l-155.245714 150.491429z" fill="#606060" p-id="658"></path><path d="M512 9.142857C234.24 9.142857 9.142857 234.24 9.142857 512S234.24 1014.857143 512 1014.857143 1014.857143 789.76 1014.857143 512 789.76 9.142857 512 9.142857z m292.571429 727.405714c0 10.057143-8.228571 18.285714-18.285715 18.285715H237.714286c-10.057143 0-18.285714-8.228571-18.285715-18.285715V287.451429c0-10.057143 8.228571-18.285714 18.285715-18.285715h548.571428c10.057143 0 18.285714 8.228571 18.285715 18.285715v449.097142z" fill="#606060" p-id="659"></path></svg></i>
+      </a>
+    
+
+    
+      
+        <a href="https://github.com/memorykki" target="_blank">
+          <i class="iconfont icon-github"></i>
+        </a>
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+    <a href="https://memorykki.github.io/atom.xml" target="_blank">
+      <i class="iconfont icon-rss"></i>
+    </a>
+  </div>
+</div>
+
+<div class="header_menu">
+  
+  
+  <a href="/" class="menu">Index</a>
+  
+
+  
+  <a href="/archives" class="menu">Archives</a>
+  
+
+  
+  <a href="/tags" class="menu">Tags</a>
+  
+
+  
+  <a href="/about" class="menu">About</a>
+  
+
+  <div class="gridea-search-div">
+    <form id="gridea-search-form" action="https://memorykki.github.io/search/">
+      <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q" />
+    </form>
+  </div>
+</div>
+
+    <div class="autopagerize_page_element">
+      <div class="content">
+        <div class="post_page">
+          <div class="post animated fadeInDown">
+            <div class="post_title post_detail_title">
+              <h1 class="indicator-free">
+                <a>
+                  记一次博客接入Gitalk出现403问题的解决过程</a>
+              </h2>
+              <span class="article-info">2021-02-14, 2816 words, 12 min read</span>
+            </div>
+            <div class="post_content markdown">
+              <p class="md_block">
+                <span class="md_line md_line_start md_line_end">
+                  <p>小站的评论系统始终无法接入 Gitalk，提示 403 Error</p>
+<!-- more -->
+<hr>
+<p><strong>目录</strong></p>
+<ul>
+<li><a href="#%E9%97%AE%E9%A2%98">问题</a></li>
+<li><a href="#%E6%88%91%E7%9A%84%E8%A7%A3%E5%86%B3%E8%BF%87%E7%A8%8B">我的解决过程</a></li>
+<li><a href="#%E5%85%B6%E4%BB%96%E8%A7%A3%E5%86%B3%E8%BF%87%E7%A8%8B">其他解决过程</a>
+<ul>
+<li><a href="#%E8%B5%B7%E5%9B%A0">起因</a></li>
+<li><a href="#%E6%80%9D%E8%B7%AF">思路</a></li>
+<li><a href="#%E7%BB%8F%E9%AA%8C">经验</a></li>
+</ul>
+</li>
+<li><a href="#%E9%83%A8%E7%BD%B2%E8%87%AA%E5%B7%B1%E7%9A%84CORSproxy">部署自己的 CORSproxy</a></li>
+<li><a href="#%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5">参考链接</a></li>
+</ul>
+<hr>
+<h1 id="问题">问题</h1>
+<p>最近博客接入 Gitalk 评论系统时，始终报错 403，不知所以，无奈转至 LeanCloud 的 valine comment，但 valine 的风格总让人感觉不够优雅 ╯︿╰。</p>
+<p>报错界面：{% img /images/gitalk-403/no-issue.PNG '&quot;no-issue&quot; &quot;no-issue&quot;' %}</p>
+<p>点击 <kbd>使用 GitHub 登录</kbd> 之后，显示 Error：{% img /images/gitalk-403/403.PNG '&quot;403&quot; &quot;403&quot;' %}</p>
+<h1 id="我的解决过程">我的解决过程</h1>
+<ol>
+<li>
+<p>打开 <kbd>F12</kbd> 控制台，刷新页面，查看出错的 Header：{% img /images/gitalk-403/f12.PNG '&quot;f12&quot; &quot;f12&quot;' %}</p>
+</li>
+<li>
+<p>触及到知识盲区了。这个 URL 尽管没见过，但两个地址套起来的形式很有特点，习惯性地打开前面的<a href="https://cors-anywhere.herokuapp.com">链接</a>，展示如下：{% img /images/gitalk-403/core.PNG '&quot;core&quot; &quot;core&quot;' %}</p>
+</li>
+</ol>
+<p>大意是：CORS Anywhere 这是个实现跨域请求的 Demo，单击按钮临时解锁对演示的访问。</p>
+<p>So，我被加锁了？</p>
+<ol start="3">
+<li>打开<a href="https://github.com/Rob--W/cors-anywhere/issues/301">提示的参考链接</a>，这个 CORS Anywhere 的作者说：</li>
+</ol>
+<blockquote>
+<p>Public demo server (cors-anywhere.herokuapp.com) will be very limited by January 2021, 31st #301<br>
+The user (developer) must visit a page at cors-anywhere.herokuapp.com to temporarily unlock the demo for their browser. This allows developers to try out the functionality, to help with deciding on self-hosting or looking for alternatives.</p>
+</blockquote>
+<p>意思是 CORS Anywhere 这个 Demo 被滥用，从 2021/1/31 开始限制，用户必须访问<a href="cors-anywhere.herokuapp.com">页面</a><strong>临时</strong>解锁。</p>
+<ol start="4">
+<li>
+<p>虽然这只是个临时解决方案，但当时没想太多，能用就行。{% img /images/gitalk-403/requestTemp.PNG '&quot;requestTemp&quot; &quot;requestTemp&quot;' %}</p>
+</li>
+<li>
+<p>Gitalk 也确实正常工作了。</p>
+</li>
+</ol>
+<h1 id="其他解决过程">其他解决过程</h1>
+<p>在 GitHub 上寻找相关 Issues 时看见这位大神的解决过程，自愧不如，经原作者同意之后搬运过来，特别是解决思路让我很受启发。以下是原文：</p>
+<hr>
+<h2 id="起因">起因</h2>
+<p>我的博客最近刚换上了 hexo 框架，于是评论功能就换成了 Gitalk。但最近发现登录功能不好用了，点击使用 GitHub 登录总是失败。</p>
+<p>就点击这个按钮的时候，始终登录不上去：</p>
+<figure data-type="image" tabindex="1"><img src="https://qiniu.cuiqingcai.com/n79m6.png" alt="image-20210212223917778" loading="lazy"></figure>
+<p>于是我就想着手解决一下这个问题。</p>
+<h2 id="思路">思路</h2>
+<p>这里就记录一下我在排查过程中碰到的一些坑和解决思路。</p>
+<p>首先，登录失败的问题，第一时间应该去排查的就是网络请求，打开控制台，查看 Network 面板，出现类似的结果：</p>
+<figure data-type="image" tabindex="2"><img src="https://qiniu.cuiqingcai.com/4d8sw.png" alt="image-20210212224407613" loading="lazy"></figure>
+<p>网络请求直接 403 了，拿不到 token 了，于是就登录不上了。</p>
+<p>观察下，这个链接 cors-anywhere 似乎是用来解决跨域限制的，后面还跟了一个 GitHub 的 Access Token 获取地址，那没跑了，前面这个就是一个反向代理，后面是真实的请求 URL。</p>
+<p>OK，看着这个也没啥思路啊，然后接着怎么办？</p>
+<p>那就接着去搜这个 cors-anywhere.herokuapp.com，因为 herokuapp 很眼熟嘛，就是一个公用的网址 Host 平台，类似于 AWS、Azure 之类的，那么前面这个可能包含某些信息。万一是开源的那就好办了。</p>
+<p>接着搜，cors-anywhere，然后就搜到了这个：<a href="https://github.com/Rob--W/cors-anywhere">https://github.com/Rob--W/cors-anywhere</a></p>
+<p>介绍如下：</p>
+<blockquote>
+<p><strong>CORS Anywhere</strong> is a NodeJS proxy which adds CORS headers to the proxied request.</p>
+<p>The url to proxy is literally taken from the path, validated and proxied. The protocol part of the proxied URI is optional, and defaults to “http”. If port 443 is specified, the protocol defaults to “https”.</p>
+<p>This package does not put any restrictions on the http methods or headers, except for cookies. Requesting <a href="http://www.w3.org/TR/cors/#user-credentials">user credentials</a> is disallowed. The app can be configured to require a header for proxying a request, for example to avoid a direct visit from the browser.</p>
+</blockquote>
+<p>真是一个开源框架，和我猜的一样，就是一个解决跨域问题而生的反向代理。</p>
+<p>然后我就在它的 README 中看到了这个：</p>
+<figure data-type="image" tabindex="3"><img src="https://qiniu.cuiqingcai.com/e9xla.png" alt="image-20210212224946845" loading="lazy"></figure>
+<p>好家伙，这不就是我刚才用到的链接吗？</p>
+<p>那肯定是这个玩意出了什么毛病。</p>
+<p>咋看呢？这个果断就是找 Issue 了：</p>
+<figure data-type="image" tabindex="4"><img src="https://qiniu.cuiqingcai.com/yyu6t.png" alt="image-20210212225114466" loading="lazy"></figure>
+<p>一看，太明显了：</p>
+<blockquote>
+<p>PSA: Public demo server (cors-anywhere.herokuapp.com) will be very limited by January 2021, 31st</p>
+</blockquote>
+<p>意思就是从今年 1.31 开始这个网站的访问会受限，点进去看看：</p>
+<blockquote>
+<p>The demo server of CORS Anywhere (cors-anywhere.herokuapp.com) is meant to be a demo of this project. But abuse has become so common that the platform where the demo is hosted (Heroku) has asked me to shut down the server, despite efforts to counter the abuse (rate limits in <a href="https://github.com/Rob--W/cors-anywhere/issues/45">#45</a> and <a href="https://github.com/Rob--W/cors-anywhere/issues/164">#164</a>, and blocking other forms of requests). Downtime becomes increasingly frequent (e.g. recently <a href="https://github.com/Rob--W/cors-anywhere/issues/300">#300</a>, <a href="https://github.com/Rob--W/cors-anywhere/issues/299">#299</a>, <a href="https://github.com/Rob--W/cors-anywhere/issues/295">#295</a>, <a href="https://github.com/Rob--W/cors-anywhere/issues/294">#294</a>, <a href="https://github.com/Rob--W/cors-anywhere/issues/287">#287</a>) due to abuse and its popularity.</p>
+<p>To counter this, I will make the following changes:</p>
+<ol>
+<li>The rate limit will decrease from 200 (<a href="https://github.com/Rob--W/cors-anywhere/issues/164">#164</a>) per hour to 50 per hour.</li>
+<li>By January 31st, 2021, cors-anywhere.herokuapp.com will stop serving as an open proxy.</li>
+<li>From February 1st. 2021, cors-anywhere.herokuapp.com will only serve requests after the visitor has completed a challenge: The user (developer) must visit a page at cors-anywhere.herokuapp.com to temporarily unlock the demo for their browser. This allows developers to try out the functionality, to help with deciding on self-hosting or looking for alternatives.</li>
+</ol>
+</blockquote>
+<p>好吧，意思就是说这个网站本来是演示用的，但是现在已经被滥用了，然后从 1.31 开始用户手动必须手动先访问这个网站获取临时的访问权限，然后才能使用。另外推荐开发者自己来维护一个网站。</p>
+<p>接着下面的评论第一个就更滑稽了：</p>
+<figure data-type="image" tabindex="5"><img src="https://qiniu.cuiqingcai.com/7d55t.png" alt="image-20210212225414735" loading="lazy"></figure>
+<p>这个人直接艾特了 gitalk，哈哈哈，因为 Gitalk 就如刚才所说的那样，也用了这个。</p>
+<p>那就顺便去 Gitalk <a href="https://github.com/gitalk/gitalk%EF%BC%8C%E9%80%9B%E4%B8%80%E4%B8%8B">https://github.com/gitalk/gitalk，逛一下</a> issue，看看是不是也有人遇到了同样的问题，果不其然了：</p>
+<figure data-type="image" tabindex="6"><img src="https://qiniu.cuiqingcai.com/s7bn5.png" alt="image-20210212225919986" loading="lazy"></figure>
+<p>最近几个 issue 都是关于 403 的，真热闹。</p>
+<p>点进去看看，有个大收获，里面有个好心人说：</p>
+<blockquote>
+<p>这次直接去嫖了一个 CORS proxy,把 gitalk.js 的 6794 行改为 proxy: ‘<a href="https://netnr-proxy.cloudno.de/https://github.com/login/oauth/access_token">https://netnr-proxy.cloudno.de/https://github.com/login/oauth/access_token</a>‘, 就可以了。具体能用多久我也没普，且用且珍惜。</p>
+</blockquote>
+<p>真是得来全不费功夫，本来还想着自己部署着，这次那就换了就行了。</p>
+<p>然而，这样不行，得需要改 gitalk.js 的源码，并不太好吧。</p>
+<p>好，这时候就遇到了一个问题，要修改某些开源软件的源码应该怎么办？</p>
+<p>首选的思路当然不是硬改，改了之后还要自己 host 一个新的 js 文件，那显然是很费精力的。</p>
+<p>其实一半程序在编写的时候应该是预留一些接口和配置的，我们应该能很轻易地通过某些配置就能实现某些配置的复写。</p>
+<p>那就接着看看吧，既然要改，那就得先看看 Gitalk 是怎么用的吧。</p>
+<p>看文档，Gitalk 调用方式如下：</p>
+<pre><code class="language-shell">const gitalk = new Gitalk({  
+ clientID: 'GitHub Application Client ID',  
+ clientSecret: 'GitHub Application Client Secret',  
+ repo: 'GitHub repo', // The repository of store comments,  
+ owner: 'GitHub repo owner',  
+ admin: \['GitHub repo owner and collaborators, only these guys can initialize github issues'\],  
+ id: location.pathname, // Ensure uniqueness and length less than 50  
+ distractionFreeMode: false // Facebook-like distraction free mode  
+})
+
+gitalk.render('gitalk-container')
+</code></pre>
+<p>看来这个在声明的时候是有参数的，那刚才 URL 配置没看到在哪里配啊，既然如此，那就看看 Gitalk 这个对象支持多少参数吧。</p>
+<p>接着就去找 Gitalk 的构造参数说明，找到这么一个：</p>
+<ul>
+<li>proxy：<code>String</code></li>
+</ul>
+<p>Default: <code>https://cors-anywhere.herokuapp.com/https://github.com/login/oauth/access_token</code>.</p>
+<p>果然找到了，所以这里如果我们要修改，那就改 proxy 参数就行了，初始化 Gitalk 的时候复写掉 proxy 就行。</p>
+<p>OK，基本思路有了，那我怎么改到我的源码里呢？</p>
+<p>我的博客是基于 Hexo 的 Next 主题的，根据经验，Gitalk 是 Next 主题自带的，所以 Gitalk 的声明应该就在 Next 主题源码里面。</p>
+<p>那怎么找呢？</p>
+<p>这时候就需要借助于一些搜索技巧了，搜什么？既然要用 Gitalk，那一定有刚才初始化的调用，那就搜 Gitalk 这个关键字就行了。另外还需要缩小一下搜索范围。</p>
+<p>于是我就把范围限定到了 next 主题目录，搜索 Gitalk。</p>
+<figure data-type="image" tabindex="7"><img src="https://qiniu.cuiqingcai.com/ey8tq.png" alt="image-20210212230931998" loading="lazy"></figure>
+<p>简直不要太舒服，一搜就有了，文件是 themes/next/layout/_third-party/comments/gitalk.swig。</p>
+<p>这里我们只需要把 proxy 参数加上不就行了，值是什么呢？仿照写就行了，配置风格保持统一，那就加一条：</p>
+<p>1</p>
+<p>proxy : '{{ theme.gitalk.proxy }}',</p>
+<p>OK，那这个配置的值很明显是主题配置文件，那就把配置文件里面加上 proxy 这个参数就好了。</p>
+<p>找到 themes/next/_config.yml，添加行：</p>
+<p>1</p>
+<p>proxy: https://netnr-proxy.cloudno.de/https://github.com/login/oauth/access_token</p>
+<p>结果如下：</p>
+<figure data-type="image" tabindex="8"><img src="https://qiniu.cuiqingcai.com/nnb1f.png" alt="image-20210212231224403" loading="lazy"></figure>
+<p>好了，大功告成！</p>
+<p>重新部署 Hexo，现在评论又能重新使用了，问题就解决了！</p>
+<p>测试地址：<a href="https://cuiqingcai.com/message/%EF%BC%8C%E5%A4%A7%E5%AE%B6%E6%9D%A5%E7%BB%99%E6%88%91%E7%95%99%E8%A8%80%E5%90%A7%EF%BD%9E">https://cuiqingcai.com/message/，大家来给我留言吧～</a></p>
+<p>好了，这就是我排查问题的整个过程，做一下记录。</p>
+<h2 id="经验">经验</h2>
+<p>另外，其实这篇文章的用意不仅仅是单纯解决这个问题，因为这个问题大家可能并没有遇到过，因此这个解决方案仅仅是给极少数遇到这个问题的朋友提供的。</p>
+<p>但是，这并不代表这篇文章没有价值，因为其中有的思路是通用的，在这里稍微做一下总结，希望对大家有帮助：</p>
+<ul>
+<li>当遇到网页功能异常的时候，排查问题就主要看两个——控制台、网络请求，这里面往往能找到主要问题。</li>
+<li>结合一些基本知识进行合理的推断，比如刚才我就推断了 cors- anywhere 的作用并结合 herokuapp 推断这个可能还会是个公用的服务。</li>
+<li>当碰到没有思路或者不确定的时候，去谷歌它！不要百度，另外还可以在 GitHub 或者 Gitee 上搜。</li>
+<li>如果找到对应的 GitHub 仓库，Issue 区往往能找到一些有效答案，比如刚才我就在 Issue 区找到了一个可替代的 cors 网站。</li>
+<li>修改代码功能的时候要想着尽量复写，也就是 overwrite，而不是直接改，前者更具有灵活性，而且某些情况下会省去一些麻烦。</li>
+<li>复写的时候去找一些参数配置，比如找一些初始化参数、默认参数配置，看看能否实现改写的需求。</li>
+<li>找不到入口的时候善用全局搜索功能，比如刚才 Gitalk 找哪里调用的时候，就直接全局搜索。</li>
+<li>根据功能限制某些搜索范围，比如刚才我就知道 Gitalk 这个功能是 Next 主题提供的，所以我就直接限制搜索范围是 Next 主题的源码。</li>
+<li>以上步骤多尝试，熟能生巧。</li>
+</ul>
+<hr>
+<h1 id="部署自己的-corsproxy">部署自己的 CORSproxy</h1>
+<p>就在我以为一切都要结束的时候，我看到了这个评论，兴趣来了！<br>
+{% img /images/gitalk-403/baipiao.PNG '&quot;baipiao&quot; &quot;baipiao&quot;' %}<br>
+参考步骤：</p>
+<ol>
+<li><a href="https://dash.cloudflare.com/">注册 CloudFlare 账号</a></li>
+<li><a href="https://workers.cloudflare.com/">building Worker</a></li>
+<li><a href="https://github.com/Zibri/cloudflare-cors-anywhere">上传代码</a></li>
+</ol>
+<p>然而我卡在了第一步，DNS 设置 CF 的名称服务器一直验证不通过。。。<br>
+{% img /images/gitalk-403/cfCheck.PNG 50 50 '&quot;cfCheck&quot; &quot;cfCheck&quot;' %}</p>
+<h1 id="参考链接">参考链接</h1>
+<ul>
+<li><a href="https://cuiqingcai.com/30010.html">Gitalk 评论登录 403 问题解决</a> 精觅-崔庆才的个人站点.</li>
+<li><a href="https://github.com/Rob--W/cors-anywhere/issues/301">PSA: Public demo server (cors-anywhere.herokuapp.com) will be very limited by January 2021, 31st #301</a></li>
+<li><a href="https://github.com/gitalk/gitalk/issues/428">使用 Github 登录后，提示 403 错误 #428</a></li>
+<li><a href="https://github.com/Zibri/cloudflare-cors-anywhere">cloudflare-cors-anywhere</a></li>
+<li><a href="https://blog.csdn.net/u012424449/article/details/103068412">一分钟教程：利用 cloudflare worker 搭建在线代理—-jsproxy</a></li>
+</ul>
+<br />
+                  
+              </p>
+            </div>
+            <div class="post_footer">
+              
+                <div class="meta">
+                  <div class="info">
+                    <span class="field tags">
+                      <i class="iconfont icon-tag-sm"></i>
+                      
+                      <a href="https://memorykki.github.io/gitalk/" class="article-info">
+                        Gitalk</a>
+                      </span>
+                  </div>
+                </div>
+                
+              
+                <div class="next-post" style="margin-top: 20px;">
+                  <div class="next">下一篇</div>
+                  <a href="https://memorykki.github.io/Hexo-Markdown-nonsupport/">
+                    <h3 class="post-title">
+                      Hexo中Markdown语法失效问题
+                    </h3>
+                  </a>
+                </div>
+                
+            </div>
+          </div>
+          
+          
+          
+              <div id="vcomments"></div>
+              <script>
+                  new Valine({
+                      el: '#vcomments',
+                      appId: 'krF0ARJcxpFRANhJvt8eQvzB-gzGzoHsz',
+                      appKey: 'jNyN9UuoDD1qPl7aXI4bLWYU'
+                  })
+              </script>
+          
+
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer">
+    <div class="footer_slogan">
+        
+    </div>
+
+    
+
+    <p>
+Powered by<a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+Theme<a href="https://github.com/kytrun/gridea-theme-one" target="_blank">One</a>
+<br>
+© 2020-2022<a href="https://memorykk.cn" target="_blank">Memorykk</a>
+<a href="http://beian.miit.gov.cn" target="_blank">陕ICP备20005895号-1</a>
+</p>
+    
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+        <p>
+            user: <span id="busuanzi_value_site_uv"></span> site: <span id="busuanzi_value_site_pv"></span> page:
+            <span id="busuanzi_value_page_pv"></span>
+        </p>
+    
+</div>
+
+
+
+<script src="https://memorykki.github.io/media/scripts/util.js"></script>
+
+
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release/build/styles/default.min.css">
+  <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release/build/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad();
+    $(function() {
+        $("#toc").tocify({ selectors: "h2, h3, h4" });
+    });
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,3298 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<title>操作系统笔记 | Memorykk&#39;s blog</title>
+<link rel="shortcut icon" href="https://memorykki.github.io/favicon.ico">
+<link href="https://memorykki.github.io/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_ntebi130zaa.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Memorykk&#39;s blog » Feed" href="https://memorykki.github.io/atom.xml">
+
+
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-61KQ1XYC4T"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-61KQ1XYC4T');
+  </script>
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?b89f2652bbc909bb41e06c21123d1797";
+      var s = document.getElementsByTagName("script")[0]; 
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+    <script src='//unpkg.com/valine/dist/Valine.min.js'></script>
+
+  <meta name="description" content="概述、启动中断异常和系统调用、连续内存分配、非连续内存分配、虚拟内存、页面置换算法、进程、处理器调度、同步互斥问题、死锁问题。
+5.5万字，252张图，150页，超长总结。
+
+
+目录
+
+
+1. 操作系统概述
+
+1.1. 操作系统的启动
+1...." />
+  <meta name="keywords" content="OS" />
+
+  <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/2.3.1/css/bootstrap.css" rel="stylesheet">
+  <link href="https://memorykki.github.io/media/css/jquery.tocify.css" rel="stylesheet">
+
+  <script src="https://cdn.bootcdn.net/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+  <script src="https://memorykki.github.io/media/scripts/jquery.ui.core.js"></script>
+  <script src="https://memorykki.github.io/media/scripts/bootstrap.js"></script>
+  <script src="https://memorykki.github.io/media/scripts/jquery.tocify.js"></script>
+
+  <style>
+    #toc .nav-list > .active > a{
+      border: 1px solid #000;
+      border-radius: 10px;
+      background-color: unset;
+    }
+    #toc a {
+      color: #000000;
+    }
+    #toc {
+      border: 0;
+    }
+  </style>
+</head>
+
+<body style="height: auto">
+  <div id="toc" style="right: 20px; top: 80px"></div>
+  <div class="main animated">
+    <div class="header animated fadeInDown">
+  <div class="site_title_container">
+    <div class="site_title">
+      <a href="https://memorykki.github.io">
+        Memorykk&#39;s blog
+      </a>
+    </div>
+  </div>
+  <div class="my_socials">
+    
+      <a href="mailto:memorykki@gmail.com">
+        <i class="iconfont"><svg t="1672505472759" class="icon" viewBox="-400 -400 1600 1600" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="656" width="25" height="25"><path d="M741.12 305.737143H276.114286L511.817143 528.457143z" fill="#606060" p-id="657"></path><path d="M524.8 566.857143a18.651429 18.651429 0 0 1-25.417143 0.182857l-62.72-59.245714L256 668.525714v49.737143h512v-49.737143l-181.577143-161.645714L524.8 566.857143zM256 337.005714v282.514286l153.965714-136.96zM768 619.52V330.788571l-155.245714 150.491429z" fill="#606060" p-id="658"></path><path d="M512 9.142857C234.24 9.142857 9.142857 234.24 9.142857 512S234.24 1014.857143 512 1014.857143 1014.857143 789.76 1014.857143 512 789.76 9.142857 512 9.142857z m292.571429 727.405714c0 10.057143-8.228571 18.285714-18.285715 18.285715H237.714286c-10.057143 0-18.285714-8.228571-18.285715-18.285715V287.451429c0-10.057143 8.228571-18.285714 18.285715-18.285715h548.571428c10.057143 0 18.285714 8.228571 18.285715 18.285715v449.097142z" fill="#606060" p-id="659"></path></svg></i>
+      </a>
+    
+
+    
+      
+        <a href="https://github.com/memorykki" target="_blank">
+          <i class="iconfont icon-github"></i>
+        </a>
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+    <a href="https://memorykki.github.io/atom.xml" target="_blank">
+      <i class="iconfont icon-rss"></i>
+    </a>
+  </div>
+</div>
+
+<div class="header_menu">
+  
+  
+  <a href="/" class="menu">Index</a>
+  
+
+  
+  <a href="/archives" class="menu">Archives</a>
+  
+
+  
+  <a href="/tags" class="menu">Tags</a>
+  
+
+  
+  <a href="/about" class="menu">About</a>
+  
+
+  <div class="gridea-search-div">
+    <form id="gridea-search-form" action="https://memorykki.github.io/search/">
+      <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q" />
+    </form>
+  </div>
+</div>
+
+    <div class="autopagerize_page_element">
+      <div class="content">
+        <div class="post_page">
+          <div class="post animated fadeInDown">
+            <div class="post_title post_detail_title">
+              <h1 class="indicator-free">
+                <a>
+                  操作系统笔记</a>
+              </h2>
+              <span class="article-info">2021-03-24, 48595 words, 169 min read</span>
+            </div>
+            <div class="post_content markdown">
+              <p class="md_block">
+                <span class="md_line md_line_start md_line_end">
+                  <p>概述、启动中断异常和系统调用、连续内存分配、非连续内存分配、虚拟内存、页面置换算法、进程、处理器调度、同步互斥问题、死锁问题。</p>
+<p>5.5万字，252张图，150页，超长总结。</p>
+<!-- more -->
+<hr>
+<p><strong>目录</strong></p>
+<!-- TOC -->
+<ul>
+<li><a href="#1-%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E6%A6%82%E8%BF%B0">1. 操作系统概述</a>
+<ul>
+<li><a href="#1-1-%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%9A%84%E5%90%AF%E5%8A%A8">1.1. 操作系统的启动</a></li>
+<li><a href="#1-2-%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%9A%84%E7%BB%93%E6%9E%84">1.2. 操作系统的结构</a></li>
+</ul>
+</li>
+<li><a href="#2-%E5%90%AF%E5%8A%A8%E4%B8%AD%E6%96%AD%E5%BC%82%E5%B8%B8%E5%92%8C%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8">2. 启动、中断、异常和系统调用</a>
+<ul>
+<li><a href="#2-1-%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%9A%84%E5%90%AF%E5%8A%A8">2.1. 操作系统的启动</a></li>
+<li><a href="#2-2-%E4%B8%AD%E6%96%AD%E5%BC%82%E5%B8%B8%E5%92%8C%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8">2.2. 中断、异常、和系统调用</a></li>
+</ul>
+</li>
+<li><a href="#3-%E8%BF%9E%E7%BB%AD%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D">3. 连续内存分配</a>
+<ul>
+<li><a href="#3-1-%E8%AE%A1%E7%AE%97%E6%9C%BA%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84%E5%8F%8A%E5%86%85%E5%AD%98%E5%88%86%E5%B1%82%E4%BD%93%E7%B3%BB">3.1. 计算机体系结构及内存分层体系</a></li>
+<li><a href="#3-2-%E8%BF%9E%E7%BB%AD%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D%E5%8E%8B%E7%BC%A9%E5%BC%8F%E4%B8%8E%E4%BA%A4%E6%8D%A2%E5%BC%8F%E7%A2%8E%E7%89%87%E6%95%B4%E7%90%86">3.2. 连续内存分配：压缩式与交换式碎片整理</a></li>
+</ul>
+</li>
+<li><a href="#4-%E9%9D%9E%E8%BF%9E%E7%BB%AD%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D">4. 非连续内存分配</a>
+<ul>
+<li><a href="#4-1-%E5%88%86%E6%AE%B5">4.1. 分段</a></li>
+<li><a href="#4-2-%E5%88%86%E9%A1%B5">4.2. 分页</a></li>
+<li><a href="#4-3-%E9%A1%B5%E8%A1%A8TLB">4.3. 页表、TLB</a></li>
+<li><a href="#4-4-%E5%A4%9A%E7%BA%A7%E9%A1%B5%E8%A1%A8">4.4. 多级页表</a></li>
+<li><a href="#4-5-%E5%8F%8D%E5%90%91%E9%A1%B5%E8%A1%A8">4.5. 反向页表</a></li>
+</ul>
+</li>
+<li><a href="#5-%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98">5. 虚拟内存</a>
+<ul>
+<li><a href="#5-1-%E8%B5%B7%E5%9B%A0">5.1. 起因</a></li>
+<li><a href="#5-2-%E8%A6%86%E7%9B%96%E6%8A%80%E6%9C%AF">5.2. 覆盖技术</a></li>
+<li><a href="#5-3-%E4%BA%A4%E6%8D%A2%E6%8A%80%E6%9C%AF">5.3. 交换技术</a></li>
+<li><a href="#5-4-%E8%99%9A%E5%AD%98%E6%8A%80%E6%9C%AF">5.4. 虚存技术</a></li>
+</ul>
+</li>
+<li><a href="#6-%E9%A1%B5%E9%9D%A2%E7%BD%AE%E6%8D%A2%E7%AE%97%E6%B3%95">6. 页面置换算法</a>
+<ul>
+<li><a href="#6-1-%E6%9C%80%E4%BC%98%E9%A1%B5%E9%9D%A2%E7%BD%AE%E6%8D%A2%E7%AE%97%E6%B3%95">6.1. 最优页面置换算法</a></li>
+<li><a href="#6-2-%E5%85%88%E8%BF%9B%E5%85%88%E5%87%BA%E7%AE%97%E6%B3%95">6.2. 先进先出算法</a></li>
+<li><a href="#6-3-%E6%9C%80%E8%BF%91%E6%9C%80%E4%B9%85%E6%9C%AA%E4%BD%BF%E7%94%A8%E7%AE%97%E6%B3%95">6.3. 最近最久未使用算法</a></li>
+<li><a href="#6-4-%E6%97%B6%E9%92%9F%E9%A1%B5%E9%9D%A2%E7%BD%AE%E6%8D%A2%E7%AE%97%E6%B3%95">6.4. 时钟页面置换算法</a></li>
+<li><a href="#6-5-%E4%BA%8C%E6%AC%A1%E6%9C%BA%E4%BC%9A%E6%B3%95">6.5. 二次机会法</a></li>
+<li><a href="#6-6-%E6%9C%80%E4%B8%8D%E5%B8%B8%E7%94%A8%E7%AE%97%E6%B3%95">6.6. 最不常用算法</a></li>
+<li><a href="#6-7-BELADY%E7%8E%B0%E8%B1%A1%E6%AF%94%E8%BE%83">6.7. BELADY现象、比较</a></li>
+<li><a href="#6-8-%E9%97%AE%E9%A2%98%E5%B7%A5%E4%BD%9C%E9%9B%86%E6%A8%A1%E5%9E%8B">6.8. 问题、工作集模型</a></li>
+<li><a href="#6-9-%E7%BC%BA%E9%A1%B5%E7%8E%87%E9%A1%B5%E9%9D%A2%E7%BD%AE%E6%8D%A2%E7%AE%97%E6%B3%95">6.9. 缺页率页面置换算法</a></li>
+<li><a href="#6-10-%E6%8A%96%E5%8A%A8%E9%97%AE%E9%A2%98">6.10. 抖动问题</a></li>
+</ul>
+</li>
+<li><a href="#7-%E8%BF%9B%E7%A8%8B">7. 进程</a>
+<ul>
+<li><a href="#7-1-%E8%BF%9B%E7%A8%8B%E7%9A%84%E5%AE%9A%E4%B9%89">7.1. 进程的定义</a></li>
+<li><a href="#7-2-%E8%BF%9B%E7%A8%8B%E7%9A%84%E7%BB%84%E6%88%90">7.2. 进程的组成</a></li>
+<li><a href="#7-3-%E8%BF%9B%E7%A8%8B%E7%9A%84%E7%89%B9%E7%82%B9">7.3. 进程的特点</a></li>
+<li><a href="#7-4-%E8%BF%9B%E7%A8%8B%E6%8E%A7%E5%88%B6%E7%BB%93%E6%9E%84">7.4. 进程控制结构</a></li>
+<li><a href="#7-5-%E8%BF%9B%E7%A8%8B%E7%9A%84%E7%94%9F%E5%91%BD%E6%9C%9F%E7%AE%A1%E7%90%86">7.5. 进程的生命期管理</a></li>
+<li><a href="#7-6-%E8%BF%9B%E7%A8%8B%E7%8A%B6%E6%80%81%E5%8F%98%E5%8C%96%E6%A8%A1%E5%9E%8B">7.6. 进程状态变化模型</a></li>
+<li><a href="#7-7-%E8%BF%9B%E7%A8%8B%E7%9A%84%E6%8C%82%E8%B5%B7">7.7. 进程的挂起</a></li>
+<li><a href="#7-8-%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BD%BF%E7%94%A8%E7%BA%BF%E7%A8%8B">7.8. 为什么使用线程</a></li>
+<li><a href="#7-9-%E4%BB%80%E4%B9%88%E6%98%AF%E7%BA%BF%E7%A8%8B">7.9. 什么是线程</a></li>
+<li><a href="#7-10-%E7%BA%BF%E7%A8%8B%E7%9A%84%E5%AE%9E%E7%8E%B0">7.10. 线程的实现</a></li>
+<li><a href="#7-11-%E4%B8%8A%E4%B8%8B%E6%96%87%E5%88%87%E6%8D%A2">7.11. 上下文切换</a></li>
+<li><a href="#7-12-%E8%BF%9B%E7%A8%8B%E6%8E%A7%E5%88%B6%E5%88%9B%E5%BB%BA%E8%BF%9B%E7%A8%8B">7.12. 进程控制—创建进程</a></li>
+<li><a href="#7-13-%E8%BF%9B%E7%A8%8B%E6%8E%A7%E5%88%B6%E5%8A%A0%E8%BD%BD%E5%92%8C%E6%89%A7%E8%A1%8C%E8%BF%87%E7%A8%8B">7.13. 进程控制—加载和执行过程</a></li>
+<li><a href="#7-14-%E8%BF%9B%E7%A8%8B%E6%8E%A7%E5%88%B6%E7%AD%89%E5%BE%85%E5%92%8C%E7%BB%88%E6%AD%A2%E8%BF%9B%E7%A8%8B">7.14. 进程控制—等待和终止进程</a></li>
+</ul>
+</li>
+<li><a href="#8-%E5%A4%84%E7%90%86%E5%99%A8%E8%B0%83%E5%BA%A6">8. 处理器调度</a>
+<ul>
+<li><a href="#8-1-%E8%83%8C%E6%99%AF">8.1. 背景</a></li>
+<li><a href="#8-2-%E8%B0%83%E5%BA%A6%E5%8E%9F%E5%88%99">8.2. 调度原则</a></li>
+<li><a href="#8-3-%E8%B0%83%E5%BA%A6%E7%AE%97%E6%B3%95">8.3. 调度算法</a></li>
+<li><a href="#8-4-%E5%AE%9E%E6%97%B6%E8%B0%83%E5%BA%A6">8.4. 实时调度</a></li>
+</ul>
+</li>
+<li><a href="#9-%E5%90%8C%E6%AD%A5%E4%BA%92%E6%96%A5%E9%97%AE%E9%A2%98">9. 同步互斥问题</a>
+<ul>
+<li><a href="#9-1-%E8%83%8C%E6%99%AF%E7%9F%A5%E8%AF%86">9.1. 背景知识</a></li>
+<li><a href="#9-2-%E4%B8%80%E4%BA%9B%E6%A6%82%E5%BF%B5PART1">9.2. 一些概念PART1</a></li>
+<li><a href="#9-3-%E4%B8%80%E4%BA%9B%E6%A6%82%E5%BF%B5PART2">9.3. 一些概念PART2</a></li>
+<li><a href="#9-4-%E4%B8%80%E4%BA%9B%E6%A6%82%E5%BF%B5PART3">9.4. 一些概念PART3</a></li>
+<li><a href="#9-5-%E4%B8%B4%E7%95%8C%E5%8C%BA">9.5. 临界区</a></li>
+<li><a href="#9-6-%E7%A6%81%E7%94%A8%E7%A1%AC%E4%BB%B6%E4%B8%AD%E6%96%AD">9.6. 禁用硬件中断</a></li>
+<li><a href="#9-7-%E5%9F%BA%E4%BA%8E%E8%BD%AF%E4%BB%B6%E7%9A%84%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88">9.7. 基于软件的解决方案</a></li>
+<li><a href="#9-8-%E6%9B%B4%E9%AB%98%E7%BA%A7%E7%9A%84%E6%8A%BD%E8%B1%A1--%E5%9F%BA%E4%BA%8E%E5%8E%9F%E5%AD%90%E6%93%8D%E4%BD%9C">9.8. 更高级的抽象 — 基于原子操作</a></li>
+</ul>
+</li>
+<li><a href="#1-0-%E4%BF%A1%E5%8F%B7%E9%87%8F%E4%B8%8E%E7%AE%A1%E7%A8%8B">10. 信号量与管程</a>
+<ul>
+<li><a href="#1-0-1-%E8%83%8C%E6%99%AF">10.1. 背景</a></li>
+<li><a href="#1-0-2-%E4%BF%A1%E5%8F%B7%E9%87%8F">10.2. 信号量</a></li>
+<li><a href="#1-0-3-%E4%BF%A1%E5%8F%B7%E9%87%8F%E7%9A%84%E4%BD%BF%E7%94%A8">10.3. 信号量的使用</a></li>
+<li><a href="#1-0-4-%E4%BF%A1%E5%8F%B7%E9%87%8F%E7%9A%84%E5%AE%9E%E7%8E%B0">10.4. 信号量的实现</a></li>
+<li><a href="#1-0-5-%E7%AE%A1%E7%A8%8B">10.5. 管程</a></li>
+<li><a href="#1-0-6-%E7%BB%8F%E5%85%B8%E5%90%8C%E6%AD%A5%E9%97%AE%E9%A2%981----%E8%AF%BB%E8%80%85%E4%BC%98%E5%85%88%E8%AF%BB%E5%86%99%E8%80%85%E9%97%AE%E9%A2%98">10.6. 经典同步问题1----读者优先读写者问题</a></li>
+<li><a href="#1-0-7-%E7%BB%8F%E5%85%B8%E5%90%8C%E6%AD%A5%E9%97%AE%E9%A2%981%E5%86%99%E8%80%85%E4%BC%98%E5%85%88%E8%AF%BB%E5%86%99%E8%80%85%E9%97%AE%E9%A2%98">10.7. 经典同步问题1—写者优先读写者问题</a></li>
+<li><a href="#1-0-8-%E7%BB%8F%E5%85%B8%E5%90%8C%E6%AD%A5%E9%97%AE%E9%A2%982%E5%93%B2%E5%AD%A6%E5%AE%B6%E5%B0%B1%E9%A4%90%E9%97%AE%E9%A2%98">10.8. 经典同步问题2—哲学家就餐问题</a></li>
+</ul>
+</li>
+<li><a href="#1-1-%E6%AD%BB%E9%94%81">11. 死锁</a>
+<ul>
+<li><a href="#11-1-%E6%AD%BB%E9%94%81%E9%97%AE%E9%A2%98">11.1. 死锁问题</a></li>
+<li><a href="#11-2-%E7%B3%BB%E7%BB%9F%E6%A8%A1%E5%9E%8B">11.2. 系统模型</a></li>
+<li><a href="#11-3-%E6%AD%BB%E9%94%81%E7%9A%84%E7%89%B9%E5%BE%81">11.3. 死锁的特征</a></li>
+<li><a href="#11-4-%E6%AD%BB%E9%94%81%E5%A4%84%E7%90%86%E5%8A%9E%E6%B3%95">11.4. 死锁处理办法</a></li>
+<li><a href="#11-5-%E6%AD%BB%E9%94%81%E9%A2%84%E9%98%B2%E5%92%8C%E6%AD%BB%E9%94%81%E9%81%BF%E5%85%8D">11.5. 死锁预防和死锁避免</a></li>
+<li><a href="#11-6-%E6%AD%BB%E9%94%81%E6%A3%80%E6%B5%8B%E5%92%8C%E6%AD%BB%E9%94%81%E6%81%A2%E5%A4%8D">11.6. 死锁检测和死锁恢复</a></li>
+<li><a href="#11-7-IPC%E6%A6%82%E8%BF%B0">11.7. IPC概述</a></li>
+<li><a href="#11-8-%E4%BF%A1%E5%8F%B7%E7%AE%A1%E9%81%93%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97%E5%92%8C%E5%85%B1%E4%BA%AB%E5%86%85%E5%AD%98">11.8. 信号，管道，消息队列和共享内存</a></li>
+</ul>
+</li>
+<li><a href="#1-2-%E9%9D%A2%E8%AF%95%E6%80%BB%E7%BB%93">12. 面试总结</a>
+<ul>
+<li><a href="#12-1-%E7%94%A8%E6%88%B7%E6%80%81%E5%92%8C%E5%86%85%E6%A0%B8%E6%80%81">12.1. 用户态和内核态</a></li>
+<li><a href="#12-2-%E7%BC%93%E5%86%B2%E5%8C%BA%E6%BA%A2%E5%87%BA">12.2. 缓冲区溢出</a></li>
+<li><a href="#12-3-%E4%B8%AD%E6%96%AD%E4%B8%8E%E8%BD%AE%E8%AF%A2">12.3. 中断与轮询</a></li>
+<li><a href="#12-4-%E4%B8%B4%E7%95%8C%E5%8C%BA">12.4. 临界区</a></li>
+<li><a href="#12-5-%E8%BF%9B%E7%A8%8B%E5%92%8C%E7%BA%BF%E7%A8%8B%E7%9A%84%E5%8C%BA%E5%88%AB">12.5. 进程和线程的区别</a></li>
+<li><a href="#12-6-%E7%A8%8B%E5%BA%8F%E4%B8%8E%E8%BF%9B%E7%A8%8B%E7%9A%84%E5%8C%BA%E5%88%AB">12.6. 程序与进程的区别</a></li>
+<li><a href="#12-7-%E8%BF%9B%E7%A8%8B%E5%92%8C%E7%BA%BF%E7%A8%8B%E7%9A%84%E4%B8%8A%E4%B8%8B%E6%96%87%E5%88%87%E6%8D%A2%E4%BB%A3%E4%BB%B7">12.7. 进程和线程的上下文切换代价</a></li>
+<li><a href="#12-8-%E8%BF%9B%E7%A8%8B%E5%90%8C%E6%AD%A5%E7%9A%84%E5%8E%9F%E5%88%99">12.8. 进程同步的原则</a></li>
+<li><a href="#12-9-%E8%BF%9B%E7%A8%8B%E5%90%8C%E6%AD%A5">12.9. 进程同步</a>
+<ul>
+<li><a href="#12-9-1-%E7%A1%AC%E4%BB%B6%E5%90%8C%E6%AD%A5%E6%9C%BA%E5%88%B6">12.9.1. 硬件同步机制</a></li>
+<li><a href="#12-9-2-%E4%BF%A1%E5%8F%B7%E9%87%8F%E5%90%8C%E6%AD%A5%E6%9C%BA%E5%88%B6">12.9.2. 信号量同步机制</a></li>
+<li><a href="#12-9-3-%E7%AE%A1%E7%A8%8B%E6%9C%BA%E5%88%B6">12.9.3. 管程机制</a></li>
+</ul>
+</li>
+<li><a href="#12-10-%E8%BF%9B%E7%A8%8B%E9%80%9A%E4%BF%A1">12.10. 进程通信</a></li>
+<li><a href="#12-11-%E7%BA%BF%E7%A8%8B%E5%90%8C%E6%AD%A5%E7%9A%84%E6%96%B9%E5%BC%8F">12.11. 线程同步的方式</a></li>
+<li><a href="#12-12-%E6%AD%BB%E9%94%81">12.12. 死锁</a>
+<ul>
+<li><a href="#12-12-1-%E6%AD%BB%E9%94%81%E7%9A%84%E6%A6%82%E5%BF%B5">12.12.1. 死锁的概念</a></li>
+<li><a href="#12-12-2-%E6%AD%BB%E9%94%81%E4%BA%A7%E7%94%9F%E7%9A%84%E5%9B%9B%E4%B8%AA%E5%BF%85%E8%A6%81%E6%9D%A1%E4%BB%B6">12.12.2. 死锁产生的四个必要条件</a></li>
+<li><a href="#12-12-3-%E6%AD%BB%E9%94%81%E7%9A%84%E5%A4%84%E7%90%86">12.12.3. 死锁的处理</a></li>
+</ul>
+</li>
+<li><a href="#12-13-%E8%BF%9B%E7%A8%8B%E7%8A%B6%E6%80%81">12.13. 进程状态</a></li>
+<li><a href="#12-14-%E7%BA%BF%E7%A8%8B%E7%8A%B6%E6%80%81">12.14. 线程状态</a></li>
+<li><a href="#12-15-%E8%BF%9B%E7%A8%8B%E8%B0%83%E5%BA%A6">12.15. 进程调度</a></li>
+<li><a href="#12-16-%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98">12.16. 虚拟内存</a></li>
+<li><a href="#12-17-%E5%88%86%E9%A1%B5%E5%92%8C%E5%88%86%E6%AE%B5">12.17. 分页和分段</a></li>
+<li><a href="#12-18-%E9%A1%B5%E9%9D%A2%E7%BD%AE%E6%8D%A2%E7%AE%97%E6%B3%95">12.18. 页面置换算法</a></li>
+<li><a href="#12-19-%E5%B1%80%E9%83%A8%E6%80%A7%E5%8E%9F%E7%90%86">12.19. 局部性原理</a></li>
+</ul>
+</li>
+<li><a href="#13-%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5">13. 参考链接</a></li>
+</ul>
+<!-- /TOC -->
+<hr>
+<h1 id="1-操作系统概述">1. 操作系统概述</h1>
+<h2 id="11-操作系统的启动">1.1. 操作系统的启动</h2>
+<p>用户角度：操作系统是一个控制软件</p>
+<ul>
+<li>管理应用程序</li>
+<li>为应用程序提供服务</li>
+<li>杀死应用程序</li>
+<li>资源管理</li>
+<li>管理外设/分配资源</li>
+</ul>
+<ol>
+<li>在操作系统下，进程&lt;-&gt;CPU, 文件&lt;-&gt;磁盘，地址空间&lt;-&gt;内存。</li>
+<li>操作系统的架构层次：硬件之上，应用软件之下(为应用软件提供服务支持)。</li>
+<li>Linux，Windows界面属于外壳shell(与User交互)，而不是内核kernel，而kernel是研究重点，在shell之下。</li>
+<li>Kernel包括：</li>
+</ol>
+<ul>
+<li>CPU调度器</li>
+<li>物理内存管理</li>
+<li>虚拟内存管理</li>
+<li>文件系统管理</li>
+<li>中断处理和IO设备驱动 (底层硬件)</li>
+</ul>
+<ol start="5">
+<li>OS Kernel的特征：</li>
+</ol>
+<ul>
+<li>并发(指一段时间内多个程序运行；而并行是指一个时间点上多个程序运行，要求多个CPU):计算机系统中同时存在多个运行的程序，需要OS管理和调度</li>
+<li>共享：“同时”访问 或 互斥共享</li>
+<li>虚拟：利用多道程序设计技术，让每一个用户都觉得有一个计算机专门为他服务</li>
+<li>异步：程序的执行不是一步到底的，而是走走停停，向前推进的速度不可预知<br>
+但只要运行环境相同，OS要保证程序运行的结果也相同</li>
+</ul>
+<h2 id="12-操作系统的结构">1.2. 操作系统的结构</h2>
+<ol>
+<li>简单的操作系统：MS-DOS 不分模块的单体内核 (内部通过函数调用访问,缺点，复杂，紧耦合，易受攻击)</li>
+<li>微内核，尽可能把内核功能移植到用户空间，缺点性能低。</li>
+<li>外核，内核分为一块，一块负责和硬件打交道，另一部分和应用打交道。</li>
+<li>虚拟机,VMs(虚拟机)-&gt;VMM(虚拟机监视器)-&gt;物理机硬件，多操作系统共享硬件资源。</li>
+</ol>
+<h1 id="2-启动-中断-异常和系统调用">2. 启动、中断、异常和系统调用</h1>
+<h2 id="21-操作系统的启动">2.1. 操作系统的启动</h2>
+<ol>
+<li>CPU, I/O, 内存通过总线连接。</li>
+<li>DISK:存放OS；<br>
+BIOS：基本I/O处理系统( basic I/O system); Bootloader: 加载OS到内存中。</li>
+<li>当电脑通电时，段寄存器CS和指令寄存器IP能够确定一个内存地址，例如CS:IP = 0xf000:fff0.</li>
+<li>POST(加电自检)，寻找显卡和执行BIOS。(显示器，键盘…是否正常)。</li>
+<li>步骤：</li>
+</ol>
+<ul>
+<li>BIOS: 将Bootloader从磁盘的磁盘的引导扇区(512字节)加载到0x7c00；跳转到CS:IP=0000:7c00的内存区域(以便下一步)</li>
+<li>Bootloader：将操作系统的代码和数据从硬盘加载到内存中；跳转到操作系统的起始地址。</li>
+</ul>
+<figure data-type="image" tabindex="1"><img src="https://memorykki.github.io/post-images/os-interview/osStart" alt="" loading="lazy"></figure>
+<ol start="6">
+<li>
+<p>系统调用：(来源于应用程序)应用程序主动向操作系统发出服务请求。</p>
+</li>
+<li>
+<p>异常：(来源于不良的应用程序)非法指令或其它花的处理状态(e.g.内存出错)。</p>
+</li>
+<li>
+<p>中断：(来源于外设)来自不同的硬件设备的计时器和网络的中断。</p>
+</li>
+<li>
+<p>为什么应用程序不能直接访问硬件而是通过操作系统？</p>
+</li>
+</ol>
+<ul>
+<li>计算机运行时，内核是被信任的第三方。</li>
+<li>只有内核可以执行特权指令。</li>
+<li>为了方便应用程序。</li>
+</ul>
+<ol start="10">
+<li>
+<p>讨论的问题：操作系统如何设计和实现中断/异常和系统调用；他们三者的区别和特点。</p>
+</li>
+<li>
+<p>产生的源头</p>
+</li>
+</ol>
+<ul>
+<li>中断：外设(键盘/鼠标/网卡/声卡/显卡，可以产生各种事件)</li>
+<li>异常：应用程序意想不到的行为(e.g.异常，恶意程序，应用程序需要的资源未得到满足)</li>
+<li>系统调用(system call)：应用程序请求操作提供服务(e.g.打开/关闭/读写文件，发送网络包)</li>
+</ul>
+<ol start="12">
+<li>处理时间</li>
+</ol>
+<ul>
+<li>中断：异步；</li>
+<li>异常：同步；</li>
+<li>系统调用：同步或异步。</li>
+</ul>
+<ol start="13">
+<li>响应</li>
+</ol>
+<ul>
+<li>中断：持续，对用户应用程序时透明的</li>
+<li>异常：杀死或者重新执行意想不到的应用程序指令</li>
+<li>系统调用：等待和持续</li>
+</ul>
+<h2 id="22-中断-异常-和系统调用">2.2. 中断、异常、和系统调用</h2>
+<p>中断和异常的处理机制<br>
+中断是外设的事件<br>
+异常是内部迫使cpu访问一些被中断和异常服务访问的功能</p>
+<p>中断和异常都一个硬件的处理过程和软件的处理过程，两者和在一起才构成操作系统的具体服务。<br>
+将中断和异常编号容易区分，每一个编号有一个对应的地址。<br>
+这些中断号会构成一个表，当发生中断或者是异常的时候，只需要去查找这个表，就可以容易查找到对应是哪一个。</p>
+<p>中断的处理过程：（包括软件和硬件）<br>
+硬件：设置中断标记[cpu初始化]</p>
+<ol>
+<li>将内部、外部事件设置中断标记</li>
+<li>中断事件的ID<br>
+软件：</li>
+<li>保存当前的处理状态。便于后续从打断的点继续完成。</li>
+<li>中断服务程序处理</li>
+<li>清楚中断标记</li>
+<li>恢复之前保存的处理状态</li>
+</ol>
+<p>异常的处理过程：（异常也会有一个异常的编号）</p>
+<ol>
+<li>保存现场</li>
+<li>异常处理</li>
+</ol>
+<ul>
+<li>杀死产生了异常的程序</li>
+<li>重新执行异常指令，重新执行这个指令，程序可以继续的执行。</li>
+</ul>
+<ol start="3">
+<li>恢复现场</li>
+</ol>
+<p>系统调用：<br>
+程序访问主要是通过高层次的API接口，而不是直接进行系统调用。</p>
+<p>这些API定义了可以提供哪些系统调用</p>
+<p>通常情况下，与每个系统调用相关的序号<br>
+系统调用接口根据这些序号来维护表的索引。<br>
+系统调用接口调用内核态中预期的系统调用<br>
+并返回系统调用的状态和其他任何返回值<br>
+用户不需要知道系统调用是如何实现的</p>
+<ul>
+<li>只需要获取API和了解操作新系统将什么作为返回结果</li>
+<li>操作系统接口的细节大部分都隐藏在API中</li>
+<li>通过运行程序支持的库来管理（用包含编译器的库来创建函数集）<br>
+两个概念：用户态和内核态</li>
+</ul>
+<p>用户态：<br>
+应用程序在执行的过程中，cpu所处于的一个特权级的状态，其特权级特别低，不能访问某些特殊的机器指令和io<br>
+内核态：<br>
+操作系统运行过程中cpu所处于的一个状态，cpu可以执行任何的一条特权指令和io，可以完全的控制这个计算机系统<br>
+<strong>ps</strong>当一个应用程序调用一个系统调用的时候，会完成从用户态到内核态的转换，从而使控制权从应用程序交到了操作系统来。操作系统就是可以对系统调用识别来完成具体的服务。</p>
+<p>函数的调用和系统调用的区别：<br>
+函数的调用只是简单的在一个栈空间里完成函数的调用和返回。而在系统调用过程中，由于应用程序和内核都有各自的堆栈，所以这回涉及到一个堆栈的切换，还会涉及特权级的转换，从用户态转换到内核态。这个是有消耗的，但是会换来安全和可靠。</p>
+<p>跨越操作系统边界的开销：</p>
+<ol>
+<li>建立中断、异常、系统调用号与对应服务例程映射关系的初始化开销，并且会有一个映射的表，需要对这个表进行维护。</li>
+<li>操作系统有自己堆栈，需要对这个堆栈进行维护有消耗。（当然，应用程序也有自己的堆栈）</li>
+<li>操作系统不信任应用程序，会对参数进行检查，会有一个时间是上的开销。</li>
+<li>数据的内存拷贝，从内核到用户空间，会有一个拷贝的开销。</li>
+</ol>
+<h1 id="3-连续内存分配">3. 连续内存分配</h1>
+<h2 id="31-计算机体系结构及内存分层体系">3.1. 计算机体系结构及内存分层体系</h2>
+<p>计算机体系结构/内存分层体系内容：</p>
+<ul>
+<li>计算机系统结构</li>
+<li>内存分层体系</li>
+<li>在操作系统的内存管理范例</li>
+</ul>
+<p>一、计算机系统结构主要包含了三大内容：</p>
+<ul>
+<li>cpu：完成对整个程序的控制</li>
+<li>内存：放置了程序的代码和管理的数据</li>
+<li>外设：配合程序发挥更大的作用</li>
+</ul>
+<figure data-type="image" tabindex="2"><img src="https://memorykki.github.io/post-images/os-interview/os31.png" alt="" loading="lazy"></figure>
+<p>二、内存的层次机构：cpu要访问的指令和数据所处的位置在什么地方</p>
+<figure data-type="image" tabindex="3"><img src="https://memorykki.github.io/post-images/os-interview/os32.png" alt="" loading="lazy"></figure>
+<p>cpu寄存器，cache：都是处于cpu内部，速度很快，容量很少，可以放的数据有限<br>
+主存，物理内存：容量大，但是速度小<br>
+硬盘：需要永久保存的数据就放在硬盘中，掉电也不会丢失，速度更慢，但是容量更大</p>
+<p>三、操作系统到底要完成的重点事情</p>
+<figure data-type="image" tabindex="4"><img src="https://memorykki.github.io/post-images/os-interview/os33.png" alt="" loading="lazy"></figure>
+<ul>
+<li>可以抽象出来，只需要考虑连续的地址空间，而不需要考虑细节</li>
+<li>保护进程空间，有一个隔离的机制，避免应用程序破坏别人</li>
+<li>进程空间的通信，共享的空间，使数据的传递安全，有效的</li>
+<li>让正在运行的程序，放在内存汇总，让暂时不需要的访问的数据可以临时的放在硬盘中。（例如p4）</li>
+</ul>
+<p>四、两种不同的空间<br>
+主存硬盘的物理地址空间<br>
+运行程序锁看见的空间是逻辑地址空间</p>
+<p>五、在操作系统中管理内存的不同方法<br>
+程序重定位，分段，分页，虚拟内存，按需分页虚拟内存<br>
+ps：其实现高度依赖于硬件，必须知道内存架构，MMU（内存管理单元）：硬件组件负责处理cpu的内存访问请求。</p>
+<p>3.2地址空间与地址生成<br>
+涉及到几点：</p>
+<ul>
+<li>地址空间定义</li>
+<li>地址生成</li>
+<li>地址的安全检查</li>
+</ul>
+<p>一、地址空间的定义</p>
+<ul>
+<li>物理地址空间—与硬件直接对于（例如内存条所代表的主存）</li>
+<li>逻辑地址空间—程序所看见的地址空间</li>
+</ul>
+<figure data-type="image" tabindex="5"><img src="https://memorykki.github.io/post-images/os-interview/os34.png" alt="" loading="lazy"></figure>
+<p>像这条指令一样，其具体的映射关系，需要操作系统来处理的</p>
+<p>二、逻辑地址生成</p>
+<figure data-type="image" tabindex="6"><img src="https://memorykki.github.io/post-images/os-interview/os35.png" alt="" loading="lazy"></figure>
+<p>执行文件放在内存中去，还是一个逻辑的地址</p>
+<p>三、完成逻辑地址到物理地址的映射过程</p>
+<figure data-type="image" tabindex="7"><img src="https://memorykki.github.io/post-images/os-interview/os36.png" alt="" loading="lazy"></figure>
+<p>当cpu需要执行这条指令的过程如下：</p>
+<ul>
+<li>ALU运算器需要这条指令的内容</li>
+<li>cpu里面的mmu（内存管理单元）查找逻辑地址的映射表，找出逻辑地址和物理地址之间的映射</li>
+<li>cpu控制器会从总线发送物理地址的内存内容的请求（就是指令的内容）</li>
+<li>主存会把总线拿到的物理地址内存的内容传给cpu<br>
+其中，操作系统的作用是建立起逻辑地址和物理地址之间的映射。</li>
+</ul>
+<p>四、地址的安全监测的过程</p>
+<figure data-type="image" tabindex="8"><img src="https://memorykki.github.io/post-images/os-interview/os37.png" alt="" loading="lazy"></figure>
+<p>操作系统的另一个目标是放在内存中的程序相互之间不能互相的干扰</p>
+<ul>
+<li>操作系统首先要确保每一个程序可以有效的访问地址空间。（包括起始地址和地址的长度）。</li>
+<li>map会指出逻辑地址是否满足映射关系，然后就去到相应的物理地址，将指令数据取回来。</li>
+<li>如果不满足，cpu将会产生一个memory异常（内存访问异常）</li>
+</ul>
+<p>3.3连续内存的分配：内存碎片与分区的动态分配<br>
+连续内存分配所涉及的问题：<br>
+内存碎片问题<br>
+分区的动态分配（第一分配，最佳适配，最差适配）<br>
+压缩式碎片整理<br>
+交换式碎片整理</p>
+<p>一、内存碎片问题<br>
+可以理解为当给一个运行的程序分配一个空间之后，会出现一些无法进一步利用的空间。<br>
+1.外部碎片：分配单元之间无法利用的空间<br>
+2.内部碎片：运行的程序无法对所分配好的空间进一步的使用</p>
+<figure data-type="image" tabindex="9"><img src="https://memorykki.github.io/post-images/os-interview/os38.png" alt="" loading="lazy"></figure>
+<p>二、分区的动态分配<br>
+什么时候需要分配连续的内存：<br>
+1.当一个程序准许运行在内存中时候，需要在内存中分配一个连续的区间<br>
+2.分配一个连续的内存切间给运行的程序以访问数据</p>
+<figure data-type="image" tabindex="10"><img src="https://memorykki.github.io/post-images/os-interview/os39.png" alt="" loading="lazy"></figure>
+<p>操作系统中会有一些数据结构和算法对空余的内存空间进行有效的管理。<br>
+以下有三个简单的内存分配的算法。</p>
+<ul>
+<li>首次适配（first fit）</li>
+<li>最优适配（best fit）</li>
+<li>最差适配（worst fit）</li>
+</ul>
+<p>以下分别做简单的介绍：</p>
+<ul>
+<li>首次适配算法（first fit）–第一个内存块</li>
+</ul>
+<figure data-type="image" tabindex="11"><img src="https://memorykki.github.io/post-images/os-interview/os310.png" alt="" loading="lazy"></figure>
+<p>基本原理和实现：<br>
+需求：<br>
+按地址排序的空闲块列表（从0地址开始），分配需要寻找一个合适的分区重分配需要检查，看是否自由分区能合并于相邻的空闲分区（若有）。<br>
+优点：<br>
+简单，并且容易产生更大的空闲块（没有被破坏），向这地址空间的结尾<br>
+缺点：<br>
+容易产生外碎片，两个空闲块的空间因为比较小，就可以不会被使用，并且随着时间这个特性会加剧。</p>
+<ul>
+<li>最优适配算法（best fit）–最适合分配请求的size</li>
+</ul>
+<figure data-type="image" tabindex="12"><img src="https://memorykki.github.io/post-images/os-interview/os311.png" alt="" loading="lazy"></figure>
+<p>基本原理和实现：</p>
+<ul>
+<li>
+<p>按尺寸排列空闲块列表</p>
+</li>
+<li>
+<p>分配需要寻找一个合适的分区</p>
+</li>
+<li>
+<p>重分配需要搜索及合并于相邻的空闲分区（若有）<br>
+优点：<br>
+对于大多数小内存分配的情况比较合适，比较简单。避免了分割大的空闲块，并且最小化外部碎片产生的尺寸<br>
+缺点：<br>
+将外碎片分配得比较细，重分配慢，而且容易产生很多没用的微小碎片（不怎么好）</p>
+</li>
+<li>
+<p>最差适配算法（worst fit）—与请求差距最大的size分配</p>
+</li>
+</ul>
+<figure data-type="image" tabindex="13"><img src="https://memorykki.github.io/post-images/os-interview/os312.png" alt="" loading="lazy"></figure>
+<p>大块变成了小块，小块进行保留<br>
+基本原理和实现：</p>
+<ul>
+<li>按差距的尺寸最大进行排列空闲块列表</li>
+<li>分配很快（获得更大的分区）</li>
+<li>重分配需要合并相邻的空间分区（若有），然后调整空闲块列表<br>
+优点：<br>
+假如分配是中等尺寸效果最好<br>
+缺点：<br>
+易于破坏大的空闲块以致于大分区无法被分配</li>
+</ul>
+<p>小结：应用请求的需求是随机的和可变的，这些算法都不可能满足全部的应用请求的。</p>
+<h2 id="32-连续内存分配压缩式与交换式碎片整理">3.2. 连续内存分配：压缩式与交换式碎片整理</h2>
+<p>以下两种方法减少碎片的产生<br>
+1.压缩式碎片整理<br>
+2.交互式碎片整理</p>
+<p>一、压缩式（compression）碎片整理<br>
+重置程序以合并孔洞<br>
+要求所有程序是动态可重置的<br>
+内存拷贝前思考两个问题：</p>
+<ul>
+<li>什么时候考虑内存的重定位是合适的<br>
+当程序处于等待的状态之中可以开始内存的重定位</li>
+<li>考虑开销大不大<br>
+仅仅利用软件的移动实现开销是很大的</li>
+</ul>
+<figure data-type="image" tabindex="14"><img src="https://memorykki.github.io/post-images/os-interview/os313.png" alt="" loading="lazy"></figure>
+<p>二、交换式（swap）碎片整理</p>
+<figure data-type="image" tabindex="15"><img src="https://memorykki.github.io/post-images/os-interview/os314.png" alt="" loading="lazy"></figure>
+<p>考虑几个问题</p>
+<ul>
+<li>考虑将那一个程序拷贝到磁盘中去？</li>
+<li>什么时候做这个换入和换出的操作？</li>
+<li>换入换出的开销？</li>
+</ul>
+<h1 id="4-非连续内存分配">4. 非连续内存分配</h1>
+<h2 id="41-分段">4.1. 分段</h2>
+<p>分段的管理机制分为两点：</p>
+<ul>
+<li>在分段情况下，内存地址空间如何寻址的问题</li>
+<li>如何去实现分段的寻址方案</li>
+</ul>
+<p>一、分段<br>
+计算机程序是由各种各样的段来存储的</p>
+<figure data-type="image" tabindex="16"><img src="https://memorykki.github.io/post-images/os-interview/41.png" alt="" loading="lazy"></figure>
+<p>分段：更好的分离和共享</p>
+<figure data-type="image" tabindex="17"><img src="https://memorykki.github.io/post-images/os-interview/42.png" alt="" loading="lazy"></figure>
+<p>通过分段，可以有效的隔离开来，相应的分离出来，更加有效进行管理，分配和保护。这中间需要一种映射机制来实现相关联。</p>
+<figure data-type="image" tabindex="18"><img src="https://memorykki.github.io/post-images/os-interview/43.png" alt="" loading="lazy"></figure>
+<p>映射之后：位置不一样，大小也不一样</p>
+<p>二、段的访问机制<br>
+将一个一维的地址分成两块：<br>
+一个是段号的寻址，另一个是偏移的寻址</p>
+<figure data-type="image" tabindex="19"><img src="https://memorykki.github.io/post-images/os-interview/44.png" alt="" loading="lazy"></figure>
+<p>段号+段内偏移何合在一起就形成了一段机制来寻址的方式。<br>
+分两种情况：</p>
+<ul>
+<li>段寄存器+地址寄存器实现方案（x86）</li>
+<li>将段和段内偏移合在一起，单地址实现方案</li>
+</ul>
+<p>三、将段的映射机制映射起来</p>
+<figure data-type="image" tabindex="20"><img src="https://memorykki.github.io/post-images/os-interview/45.png" alt="" loading="lazy"></figure>
+<p>过程：<br>
+1、通过段号找到段所在物理内存的起始地址<br>
+2、但是这个映射关系需要存储–段表，段表中存储中逻辑地址的段号和物理地址的段号的映射关系。<br>
+3、段表中存储着两个重要的信息：一个是段表的起始地址，另外一个是段长度的限制，两者合在一起就形成了一个物理地址。<br>
+4、 这样形成了物理地址之后，根据这个地址来查找在物理内存的位置，然后把相应的数据取出来，交给cpu做进一步的处理</p>
+<p>段表有操作系统来建立，此时段机制就可以正常的工作了。<br>
+而且段机制用得比较少，现在大多数的cpu用的是分页机制。</p>
+<h2 id="42-分页">4.2. 分页</h2>
+<p>两个内容：</p>
+<ul>
+<li>分页地址空间</li>
+<li>页寻址方案</li>
+</ul>
+<p>段需要一个段号和段内的偏移，而页也一样，需要页号和页内的偏移。<br>
+主要区别在于在段的机制里面，段的尺寸是可变的，而分页机制中页的大小是固定的，这个是最大的区别。</p>
+<p>一、页的分类</p>
+<p>划分物理内存至固定大小的帧<br>
+大小是2的幂，eg：512,4096（4k）,8192<br>
+划分逻辑地址空间至相同大小的页<br>
+大小是2的幂，eg：512,4096,8192<br>
+ps：页的大小是不变的，这样便于硬件对其实现</p>
+<p>页帧（frame）是物理页<br>
+页（page）逻辑页</p>
+<p>我们需要建立一个逻辑页地址和物理页地址的一个映射关系。<br>
+建立方案：转换逻辑地址为物理地址（page to frame）</p>
+<ul>
+<li>页表</li>
+<li>MMU（内存管理单元）/TLB（块表）</li>
+</ul>
+<p>二、页帧（frame）—物理地址<br>
+定义：物理内存的组织和布局方式<br>
+页帧也有两部分组成：</p>
+<ul>
+<li>页帧号（frame number）</li>
+<li>页帧偏移（frame offset）</li>
+</ul>
+<figure data-type="image" tabindex="21"><img src="https://memorykki.github.io/post-images/os-interview/46.png" alt="" loading="lazy"></figure>
+<p>页帧号占 F 位，页帧本身的大小占 S 位<br>
+在整个的寻址空间中有 2^F 这么多个页帧的个数<br>
+页帧而每一页的总大小是 2^S</p>
+<figure data-type="image" tabindex="22"><img src="https://memorykki.github.io/post-images/os-interview/47.png" alt="" loading="lazy"></figure>
+<p>解析：<br>
+一帧包含了9位，所以没一页帧的大小都是2 ^9 这么大小，而页帧号是3，所以代表了有3个这么大的一个页，所以也就是2^9 * 3，最后，再加上偏移量o，为6，所以最后的结果是 2^9 * 3 + 6 = 1542.<br>
+所以地址就是0x1542</p>
+<p>三、页（page）—逻辑地址<br>
+和页帧的区别是其页号和页帧号的szie大小可能不一样。但是每一个页的大小和每一个页帧的大小都是一样的。</p>
+<figure data-type="image" tabindex="23"><img src="https://memorykki.github.io/post-images/os-interview/48.png" alt="" loading="lazy"></figure>
+<p>其逻辑地址的计算方法与页帧的计算方法是一样的。</p>
+<p>四、地址的转换</p>
+<figure data-type="image" tabindex="24"><img src="https://memorykki.github.io/post-images/os-interview/49.png" alt="" loading="lazy"></figure>
+<p>过程如下：<br>
+1、首先cpu会去寻址（逻辑地址或者是物理地址），这个地址会分为另两个内容，一个是offect偏移量，一个是页号。<br>
+2、将也号作为一个索引，查一个页表（Page table），其实以页号为索引的一向内容，可以根据其查找出页帧号。而且还有知道其基地址，就形成了页帧号和页帧偏移量大小的物理地址。（所以页的偏移大小和页帧的偏移大小是一样的）<br>
+3、这样就知道了对应的物理地址的所在位置。这个整个的大致过程。<br>
+ps：其中page table是操作系统在内存初始化的时候建立起来的。</p>
+<figure data-type="image" tabindex="25"><img src="https://memorykki.github.io/post-images/os-interview/410.png" alt="" loading="lazy"></figure>
+<h2 id="43-页表-tlb">4.3. 页表、TLB</h2>
+<p>一、页表的结构</p>
+<figure data-type="image" tabindex="26"><img src="https://memorykki.github.io/post-images/os-interview/411.png" alt="" loading="lazy"></figure>
+<p>在页表中，有一系列的属性，eg：可读可写，是否存在等等…</p>
+<p>二、页表的地址转换的例子</p>
+<p>逻辑地址空间和物理地址空间大小是不对等的，但是每一个页内的偏移都是相等的。<br>
+其中，resident 位为0 代表 内存不存在，为1表示存在。如果cpu访问了为0的地址，这是会产生一个异常，就是内存访问异常。</p>
+<p>如图所示：<br>
+页为（4,0）的逻辑地址，由于resident = 0，所以真是的物理内存不存在<br>
+页为（3，1024）的逻辑地址，由于resident = 1，地址存在，查表可知，frame物理地址的页帧号是4，偏移量与页的偏移量相同，一样为1023，所以结果地址便为（4,1023）<br>
+（页表的建立过程是有操作系统完成的）</p>
+<p>三、分页机制的性能问题<br>
+1、空间的代价问题<br>
+2、时间的开销问题<br>
+（希望时间越短越好，效率越大越好）</p>
+<p>问题一：页表可能非常大<br>
+64位机器如果每页是1k，那么一个页表的大小会是多少呢？<br>
+问题二：页表可能开销大<br>
+每一个应用程序都要生成一个自己的页表，开销比较大</p>
+<p>如何处理？</p>
+<ul>
+<li>缓存（Caching）<br>
+将一些常用的数据缓存到黎cpu非常近的地方，提高访问的速度</li>
+<li>间接（Indirection）访问<br>
+通过间接的方法，将一个很大的空间，拆分为一个很小的空间。通过多级的页表机制，可以缓解页表占用空间过大的问题。</li>
+</ul>
+<p>时间问题 —TLB<br>
+缓存近期访问的页帧转换表项</p>
+<figure data-type="image" tabindex="27"><img src="https://memorykki.github.io/post-images/os-interview/412.png" alt="" loading="lazy"></figure>
+<p>TLB是一个特殊的区域，位于CPU的内部。<br>
+Key和Value两个形成了TLB的表相，而这个表相是由相关存储器来实现的，这个是一种快速查询的存储器，速度很快，可以并发的查找，但是容量是有限的。所以可以将一些经常使用的页表项放在TLB中。可以通过查询TLB，避免了一次页表的访问。<br>
+当出现TLB访问不到的情况，这个情况叫做TLB miss，这是cpu就不得不查页表。<br>
+而对于TLB miss这个情况，将新的页帧加载到TLB中，部分是有cpu硬件来完成的，而部分是有操作系统完成的，也就是两种情况都存在。</p>
+<h2 id="44-多级页表">4.4. 多级页表</h2>
+<p>一、空间问题 — 二级页表解决</p>
+<figure data-type="image" tabindex="28"><img src="https://memorykki.github.io/post-images/os-interview/413.png" alt="" loading="lazy"></figure>
+<p>一级页表里面存储的是二级页表的地址，二级页表知道之后就会知道frame number页帧号。<br>
+通过这种方式可以极大的减少空间的消耗，因为如果一级页表中的resident = 0的话。就没有必要再二级页表中添加其索引的，比单级页表大大的减小了空间的开销。</p>
+<p>二、多级页表<br>
+多级页表可以表示一个更大的地址空间，形成一个树状的结构。这个是以时间换取空间，但是时间问题也可以通过TLB方法来解决。</p>
+<figure data-type="image" tabindex="29"><img src="https://memorykki.github.io/post-images/os-interview/414.png" alt="" loading="lazy"></figure>
+<h2 id="45-反向页表">4.5. 反向页表</h2>
+<p>一、反向页表：<br>
+以物理地址的页帧号（frame number）方向查找逻辑页的页号（page number）</p>
+<figure data-type="image" tabindex="30"><img src="https://memorykki.github.io/post-images/os-interview/415.png" alt="" loading="lazy"></figure>
+<p>这样使得寄存器的容量，只与物理地址空间的大小相关，与逻辑地址空间大小无关。</p>
+<p>但是有一个主要的问题：如何将页号和页帧号建立起一个映射关系。<br>
+页存储器方案的权衡：<br>
+优点：</p>
+<ul>
+<li>转换表的大小相对于物理内存来说很小</li>
+<li>转换表的大小跟逻辑地址空间的大小无关<br>
+缺点：</li>
+<li>需要的信息对调了，既根据帧号可找到页号</li>
+<li>如何转换回来？既根据页号找到帧号</li>
+<li>在需要在反向表中搜索想要的页号</li>
+</ul>
+<p>二、关联存储器方案<br>
+可以并行的查找页号所对应的帧号，其key是他的页号，value是页帧号</p>
+<figure data-type="image" tabindex="31"><img src="https://memorykki.github.io/post-images/os-interview/416.png" alt="" loading="lazy"></figure>
+<p>存在的问题：</p>
+<ul>
+<li>设计成本太大，硬件处理很复杂</li>
+<li>内存访问的开销问题</li>
+<li>大量的关联内存非常昂贵，难以在单个时钟周期内完成且耗电</li>
+</ul>
+<p>三、基于哈希（hash）计算的反向页表<br>
+只需要建立好一个哈希的函数，输入一个值，就会得到一个输出。而输入的值是page number，输出的值是frame number。<br>
+为了能提高加速，需要硬件的加速。<br>
+为了提高效率，加一个PID的标识</p>
+<figure data-type="image" tabindex="32"><img src="https://memorykki.github.io/post-images/os-interview/417.png" alt="" loading="lazy"></figure>
+<p>可以有效的缓解完成映射的开销。</p>
+<p>在反向页表中通过哈希算法来搜索一个页对应的帧号</p>
+<ul>
+<li>对页号做哈希计算，为了在“帧表”（每一帧用于一个表项）中获取对应的帧号</li>
+<li>页i被放置在表中f(i)位置，其中f是设定的哈希函数</li>
+<li>为了查找页i，执行下列操作：<br>
+计算哈希函数f(i)并且使用它作为页寄存器表的索引，获取对应的页寄存器，检查寄存器标签是否包含i，如果包含，则代表成功，否则失败。</li>
+</ul>
+<h1 id="5-虚拟内存">5. 虚拟内存</h1>
+<h2 id="51-起因">5.1. 起因</h2>
+<p>理想中的存储器：<br>
+更大，更快，更便宜的非易性存储器</p>
+<figure data-type="image" tabindex="33"><img src="https://memorykki.github.io/post-images/os-interview/51.png" alt="" loading="lazy"></figure>
+<p>硬盘的速度远远的慢于内存的执行。<br>
+磁带比硬盘的存储容量更加的庞大。<br>
+现有的物理内存掉电之后数据还是会丢失的。</p>
+<figure data-type="image" tabindex="34"><img src="https://memorykki.github.io/post-images/os-interview/52.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="35"><img src="https://memorykki.github.io/post-images/os-interview/53.png" alt="" loading="lazy"></figure>
+<p>以上设计了三种技术：</p>
+<ul>
+<li>手动覆盖技术：只把指令和数据保存在内存中</li>
+<li>自动交换技术：将程序导出内存到硬盘上</li>
+<li>虚拟内存技术（前两种是虚拟内存还没出现的情况下诞生的）：以更小的力度把数据导出导入到内存中来，充分的利用了内存空间的手段</li>
+</ul>
+<h2 id="52-覆盖技术">5.2. 覆盖技术</h2>
+<p>一、覆盖技术的基础<br>
+目标：<br>
+是在较小的可用内存中运行较大（相对而言的）的程序。常用与多道程序系统，与分区存储管理配合使用。<br>
+原理：<br>
+把程序按照其自身的逻辑结构，划分为若干个功能上相对独立的程序模块，那些不会同时执行的模块共享同一块内存区域，按时间先后来运行。</p>
+<p>必要部分（常用功能）的代码和数据常驻内存；<br>
+可选部分（不常用内存）在其他程序模块中实现，平时存放在外存中，在需要用到时才装入内存；<br>
+不存在调用关系的模块不必同时装入到内存，从而可以相互覆盖，既这些模块共有一个分区。<br>
+二、应用例子<br>
+例子一：</p>
+<figure data-type="image" tabindex="36"><img src="https://memorykki.github.io/post-images/os-interview/54.png" alt="" loading="lazy"></figure>
+<ul>
+<li>bc是对等的，相互之间不会调用，所以分在一个区；A调用b的时候，c是不会执行的，所以只需要将b放在内存中即可。</li>
+<li>def也是对等的，相互之间也不会调用，所以也分在一个区；当C调用e的时候，df通用是不会被调用的，所以也只需要将e放在内存中即可。</li>
+</ul>
+<p>例子二：</p>
+<figure data-type="image" tabindex="37"><img src="https://memorykki.github.io/post-images/os-interview/55.png" alt="" loading="lazy"></figure>
+<p>所以覆盖技术是可以有多种方式选择的。</p>
+<p>三、覆盖技术的优缺点<br>
+优点：<br>
+将一个大程序可以放在一个很小的内存里面通过交换技术执行。</p>
+<p>缺点：</p>
+<ul>
+<li>由程序员来把一个大的程序划分为若干个小功能模块，并确定各个模块之间的覆盖技术，费时费力，增加了编程的复杂度。</li>
+<li>覆盖模块从外存装入内存，实际上是以时间延长来换取空间节省</li>
+</ul>
+<h2 id="53-交换技术">5.3. 交换技术</h2>
+<p>一、交换技术的基础<br>
+目标：<br>
+多道程序在内存中时，让正在运行的程序或需要运行的程序获得更多的内存资源。<br>
+方法：</p>
+<ul>
+<li>可将暂时不能运行的程序送到外存，从而获得空闲内存空间</li>
+<li>操作系统把一个进程的整个地址空间的内容保存到外存中（换出swap out），而将外存中的某个进程的地址空间读入到内存中（换入swap in）。换入换出内容的大小为整个程序的地址空间。</li>
+</ul>
+<p>这个换入换出的交换技术是操作系统内存管理的重要组成部分。</p>
+<figure data-type="image" tabindex="38"><img src="https://memorykki.github.io/post-images/os-interview/56.png" alt="" loading="lazy"></figure>
+<p>二、交换技术实现的几个问题：</p>
+<ul>
+<li>交换时机的确定：何时小发生交换？只当内存空间不够或有不够危险的时候才换出。</li>
+<li>交换区的大小：必须足够大以存放所以用户进程的所有内存映射的拷贝；必须能对这些内存映像进行直接存取。</li>
+<li>程序换入时的重定位：换出后再换入的内存位置一定要在原来的位置上吗，寻址可能会出现问题？最好采用动态地址映射的方法，建好页表就行。<br>
+ps：交换技术是可以由操作系统来完成的，对于程序员来说是透明的。<br>
+三、小结–覆盖与交换的比较</li>
+<li>覆盖只能发生在那些相互之间没有调用关系的程序模块之间，因此程序员必须给出程序内的各个模块之间的逻辑覆盖结构。</li>
+<li>交换技术是以内存中的程序大小为单位来进行的，它不需要程序员给出各个模块之间的逻辑覆盖结构。换言之，交换发生在内存中程序与管理程序或操作系统之间，而覆盖则发生在运行程序内部。</li>
+</ul>
+<h2 id="54-虚存技术">5.4. 虚存技术</h2>
+<p>（虚拟内存管理技术）<br>
+一、前诉<br>
+在内存不够用的情形下，可以采用覆盖技术和交换技术，但是：<br>
+覆盖技术：需要程序员自己把整个程序划分为若干个小的功能模块，并确定各个模块之间的覆盖关系，增加了程序员的负担；<br>
+交换技术：以进程作为交换的单位，需要把进程的整个地址空间都换进换出，增加了处理器的开销。<br>
+希望通过一种更好的办法，能够充分的解决交换技术和覆盖技术出现的问题。</p>
+<p>二、虚拟内存的基础<br>
+目标：</p>
+<ul>
+<li>像覆盖技术那样，不是把程序的所有内容都放在内存中，因而能够运行比当前的空闲内存空间还要大的程序。但做得更好，由操作系统自动来完成，无须程序员的干涉；</li>
+<li>像交换技术那样，能够实现进程在内存与外存之间的交换，因而获得更多的空闲内存空间。但做得更好，只对进程的部分内容在内存和外存之间进行交换。</li>
+</ul>
+<figure data-type="image" tabindex="39"><img src="https://memorykki.github.io/post-images/os-interview/57.png" alt="" loading="lazy"></figure>
+<p>二、虚拟技术–程序的局部性原理<br>
+定义：<br>
+程序的局部性原理（principle of locality），指程序在执行过程中的一个较短时期，所执行的指令地址和指令的操作数地址，分别局限于一定的区域，这个可以表现为：</p>
+<p>时间局部性：一条指令的一次执行和下次执行，一个数据的一次访问和下一次访问都集中在一个较短时期内。<br>
+空间局部性：当前指令和邻近的几条指令，当前访问的数据和邻近的几个数据都集中在一个较小区域内。<br>
+程序的局部性原理表明，从理论上说，虚拟存储技术是能够实现的，而且在实现了以后应该是能够取得一个满意的效果。访问的速度更快，并且可以提供一个很多的空间。<br>
+三、程序局部性的例子</p>
+<figure data-type="image" tabindex="40"><img src="https://memorykki.github.io/post-images/os-interview/58.png" alt="" loading="lazy"></figure>
+<p>可见：程序1是按照行来访问的，而程序2的按照列来访问的</p>
+<figure data-type="image" tabindex="41"><img src="https://memorykki.github.io/post-images/os-interview/59.png" alt="" loading="lazy"></figure>
+<p>结果分析：<br>
+由于程序1的没相邻的两次访问的地址差距较大，不满足时间局部性和空间局部性，所以会产生多次的缺页中断，对系统的开销较大。而程序2两个数据是相邻的，具有良好的时间局部性和空间局部性。<br>
+如果程序不具有局部性，这个高效的机制就很难的实现。</p>
+<p>四、虚存技术的大致流程<br>
+前提：<br>
+操作系统有了硬件支持分段/分页机制，在此内存管理基础之上来实现一个以页或者是段为单位的虚存管理。<br>
+过程：</p>
+<ul>
+<li>在装入程序的时候，不必将所有的程序和数据装入内存中去，而只需将当前需要执行的部分的代码数据放在相关的段或者是页中，这样可以是的一小部分的代码放在内存中去了。</li>
+<li>在程序执行过程中，如果需要执行的指令或访问的数据尚未在内存中（称为缺页或缺段），则由处理器通知操作系统将相应的页面或段调入到内存，然后继续执行程序。</li>
+<li>另一方面。操作系统将内存中暂时不使用的页面或段调出保存在外存上，从而腾出更多空闲空间存放将要装入的程序以及将要调入的页面或段。</li>
+</ul>
+<p>如图所示：程序只有少部分在内存中，而大部分都是在外存中存储。</p>
+<figure data-type="image" tabindex="42"><img src="https://memorykki.github.io/post-images/os-interview/510.png" alt="" loading="lazy"></figure>
+<p>五、虚拟内存的基本特征</p>
+<ul>
+<li>较大的用户空间：<br>
+通过把物理内存与外存结合，提供给用户的虚拟内存空间通常大于实际的物理内存，既实现了这两者的分离。如32位的虚拟地址理论上可以访问4GB，而可能计算机上仅有256M的物理内存，但硬盘的容量大于4GB</li>
+<li>部分交换：<br>
+与交换技术相比较，虚拟存储的调入和调出是对部分虚拟地址空间进行的，其每次的换入换出是非常规整的，要么是段或者是页。不需要将整个程序交换出去。力度更小，但是效率更高。</li>
+<li>不连续性：<br>
+物理内存分配不连续，虚拟地址空间使用也是不连续的。本来所有的数据都是连续的放在虚拟内存中的，但是操作系统要把某些数据换出去，而造成的不连续。操作系统会弥补好，正常的访问。</li>
+</ul>
+<p>六、虚拟内存技术的具体实现<br>
+基于页式虚拟内存管理，与前诉的一样。</p>
+<figure data-type="image" tabindex="43"><img src="https://memorykki.github.io/post-images/os-interview/511.png" alt="" loading="lazy"></figure>
+<p>大部分虚拟存储系统都采用虚拟页式存储管理技术，既在页式存储管理的基础上，增加请求调页和页面置换功能。<br>
+基本思路：</p>
+<ul>
+<li>当一个用户程序要调入内存运行时，不是将该程序的所以页面都装入内存，而是只装入部分的页面，就可以启动程序运行。</li>
+<li>在运行的过程中，如果发现要运行的程序或要访问数据不在内存，则向系统发出缺页中断请求，系统在处理这个中断时，将外存中相应的页面调入内存，使得该程序能够继续运行。</li>
+</ul>
+<p>七、页表表项的设定</p>
+<figure data-type="image" tabindex="44"><img src="https://memorykki.github.io/post-images/os-interview/512.png" alt="" loading="lazy"></figure>
+<p>驻留位：表示该页是在内存还是外存。如果该位等于1，表示该页位于内存当中，既该页表项是有效的，可以使用；如果改为为0，表示该页当前还在外存当中，如果访问该页表项，将导致缺页中断。<br>
+保护位：表示允许对该页做何种类型的访问，如只读，可读写，可执行等。<br>
+修改位：表面此页面在内存中是否被修改过，当系统回收该物理页面时，根据此位来决定是否把他的内容写回外存。位为0就表示数据一样的，不需要写回外存中。<br>
+访问位：如果该页面被访问过（包括读操作或写操作），则设定词尾，用于页面的置换算法。<br>
+示例：</p>
+<figure data-type="image" tabindex="45"><img src="https://memorykki.github.io/post-images/os-interview/513.png" alt="" loading="lazy"></figure>
+<p>（左边是虚存页表的映射关系，每一个页表项有4K的物理页，X代表驻留位为0，如果是一个具体的数，就代表驻留位为1，映射关系有效。）</p>
+<p>示例1：<br>
+MOV REG, 0 //将0地址的内容赋值给一个寄存器<br>
+可以看见，0地址是在最底下，有一个2，这表示驻留位是1，且页帧号是2。而一个页的大小是4096,既4k，所以2*4k为8k。也就是所将对应的8k的地址8192的内容给寄存器。<br>
+MOV REG, 0 ---------&gt; MOV REG, 8192</p>
+<p>示例2：<br>
+MOV REG, 32780<br>
+可以看见32780对应的页表项是32k，其驻留位的设置是0，没有对应的一个页帧号，意味着访问这一页会产生缺页（缺页异常）<br>
+MOV REG, 32780 ---------&gt; MOV REG, 缺页中断</p>
+<p>八、缺页中断处理过程</p>
+<figure data-type="image" tabindex="46"><img src="https://memorykki.github.io/post-images/os-interview/514.png" alt="" loading="lazy"></figure>
+<p>当cpu执行一条指令load一个内存地址，如果这个内存地址没有一个对应的关系，也就是说没有一个存在位，这时就会产生一个缺页异常，接来下操作系统就会完成一些列缺页中断的处理：</p>
+<ul>
+<li>如果在内存中有空闲的物理页面，则分配一空闲的物理页帧f，然后转第4步；否者转第2步。</li>
+<li>采用某种页面置换算法，选择一个将被替换的物理页帧f，他所对应的逻辑页为q。如果该页在内存期间被修改过，则需把他写回外存。</li>
+<li>对q所对应的页表项进行修改，把驻留位置置0。</li>
+<li>将需要访问的页p装入到物理页面f当中。也就是把页所需要访问的地址对应的硬盘中的数据，以页为单位，从硬盘读到内存中去，读到刚分配到的那个内存地址。</li>
+<li>修改p所对应的页表项的内容，把驻留位置1，把物理页帧号置为f。</li>
+<li>重新运行被中断的指令。</li>
+</ul>
+<p>九、后备存储（Backing Store）<br>
+在何处保存未被映射的页？<br>
+能够简单地识别在二级存储器中的页<br>
+交换空间（磁盘或者文件）：特殊格式，用于存储未被映射的页面<br>
+概念：<br>
+一个虚拟地址空间的页面可以被映射到一个文件（在二级存储中）中的某个位置<br>
+代码段：映射到可执行二进制文件<br>
+动态加载的共享程序段：映射到动态调用的库文件<br>
+其他段：可能被映射到交换文件（swap file）</p>
+<p>有了这个后背存储/二级存储，可以充分保证了虚存空间的有效性。</p>
+<p>十、虚拟内存性能<br>
+为了便于理解分页的开销，使用有效存储器访问时间effective memory access</p>
+<figure data-type="image" tabindex="47"><img src="https://memorykki.github.io/post-images/os-interview/515.png" alt="" loading="lazy"></figure>
+<p>其实取决参数p，如果p足够小，就可以使平均的执行时间接近10nm，但是如果程序有局部性特点，就表面产生缺页的次数会很少，这是效率就会很高。</p>
+<h1 id="6-页面置换算法">6. 页面置换算法</h1>
+<p>1、局部页面置换算法</p>
+<p>最优页面置换算法（OPT、optimal）<br>
+先进先出算法（FIFO）<br>
+最近最久未使用算法（LRU,Least Recently Used）<br>
+时钟页面置换算法（Clock）<br>
+最不常用算法（LFU，Least Frequently Used）<br>
+Belady现象<br>
+LRU、FIFO和Clock的比较<br>
+2、全局页面置换算法</p>
+<p>工作集模型<br>
+工作集页置换算法<br>
+缺页率置换算法<br>
+功能：<br>
+当缺页中断发生，需要调入新的页面而内存已满时，选择内存当中哪个物理页面被置换。</p>
+<p>目标：<br>
+尽可能地减少页面的换进换出次数（既缺页中断的次数）。具体来说，把未来不再使用的或短期内较少使用的页面换出，通常只能在局部性原理指导下依据过去的统计数据来进行预测。</p>
+<p>页面锁定（frame locking）：<br>
+用于描述必须常驻内存的操作系统的关键部分或时间关键（time-critical）的应用程序。实现的方法是L在页表中添加锁定标志位（lock bit）。使其不在页面置换算法范围之内，也就说不会被换入换出。</p>
+<figure data-type="image" tabindex="48"><img src="https://memorykki.github.io/post-images/os-interview/61.png" alt="" loading="lazy"></figure>
+<p>通常只需要考虑页号，因为偏移号一般不起作用。只保留页号。基于这个list来设计各种的页面替换算法。<br>
+通过模拟一个页面置换的行为并且记录产生页缺失数的数量。一般情况下，产生的缺页次数越少，性能就越高。</p>
+<h2 id="61-最优页面置换算法">6.1. 最优页面置换算法</h2>
+<p>一、基础<br>
+基本思路：<br>
+当一个缺页中断发生时，对于保存在内存当中的每一个逻辑页面，计算在它的下一次访问之前，还需要等待多长时间，从中选择等待时间最长的那个，作为被置换的页面。</p>
+<p>结论：</p>
+<p>这只是一个理想的情况，在实际系统中是无法实现的，因为操作系统无从知道每一个页面要等待多长时间以后才会再次被访问。<br>
+可用作其他算法的性能评价的依据（在一个模拟器上运行某个程序，并记录每一次的页面访问情况，在第二遍运行时即可使用最优算法。然后以此为基础，评价其他的算法。）<br>
+二、示例</p>
+<figure data-type="image" tabindex="49"><img src="https://memorykki.github.io/post-images/os-interview/62.png" alt="" loading="lazy"></figure>
+<p>在上帝视角中，可以看出由于d是最长时间没有被使用，所以d将会被e所替换，如上所示。</p>
+<h2 id="62-先进先出算法">6.2. 先进先出算法</h2>
+<p>一、基础<br>
+先进先出算法（First-In First-Out，FIFO）：<br>
+1、基本思路：<br>
+选择在内存中驻留时间最长的页面并淘汰之。具体来说，系统维护着一个链表，记录了所有位于内存当中的逻辑页面。从链表的排列顺序来看，链首页面的驻留时间最长，链尾页面的驻留时间最短。当发生一个缺页中断时，把链首页面淘汰出局，并把新的页面添加到链表的末尾。</p>
+<p>2、评价：<br>
+性能较差，调出的页面有可能是经常要访问的页面，并且有Belady现象（给的物理页帧越多，产生缺少的次数越大）。FIFO算法很少单独使用。</p>
+<p>二、示例</p>
+<figure data-type="image" tabindex="50"><img src="https://memorykki.github.io/post-images/os-interview/63.png" alt="" loading="lazy"></figure>
+<p>实现简单，但是产生的缺页次数比较多</p>
+<h2 id="63-最近最久未使用算法">6.3. 最近最久未使用算法</h2>
+<p>一、基础<br>
+最近最久未使用算法（LRU,Least Recently Used）<br>
+1、基本思路：<br>
+当一个缺页中断发生时，选择最久未使用的那个页面，并淘汰之。</p>
+<p>2、评价：<br>
+它是对最优页面置换算法的一个近似，其依据是程序的局部性原理，既在最近一小段时间（最近几条指令）内，如果某些页面被频繁地访问，那么在将来的一小段时间内。他们还可能会再一次地频繁地访问。反过来说，如果在过去某些页面长时间未被访问，那么在将来他们还可能会长时间地得不到访问。也就是根据过去推算出未来。</p>
+<p>二、示例</p>
+<figure data-type="image" tabindex="51"><img src="https://memorykki.github.io/post-images/os-interview/64.png" alt="" loading="lazy"></figure>
+<p>LRU算法需要记录各个页面使用时间的先后顺序。<br>
+开销比较大。两种可能的实现方法是：<br>
+方法一：<br>
+系统维护一个页面链表，最近各个使用过的页面作为首节点，最久未使用的页面作为尾节点。每一次访问内存时，找到相应的页面，把它从链表中摘下来，在移动到链表之首。每次缺页中断发生时，也就是没有这个页表，所以会把新的页表查到链表头，然后淘汰链表末尾的页面。</p>
+<p>方法二：<br>
+设置一个活动页面栈，当访问某页时，将此页号压入栈顶，然后考察栈内是否有与页面相同的页号，若有则抽出。然后压入栈顶。当需要淘汰一个页面时，总是选择栈底的页面，它就是最久未使用的。</p>
+<figure data-type="image" tabindex="52"><img src="https://memorykki.github.io/post-images/os-interview/65.png" alt="" loading="lazy"></figure>
+<p>效果比较好，但是系统的开销比较大</p>
+<h2 id="64-时钟页面置换算法">6.4. 时钟页面置换算法</h2>
+<p>一、基础<br>
+Clock页面置换算法，LRU的近视，对FIFO的一种改进<br>
+1、基本思路</p>
+<ul>
+<li>需要用到页表项当中的访问位，当一个页面被装入内存时，把该位初始化为0。然后如果这个页面被访问（读/写），则把该位置置1。</li>
+<li>把各个页面组织形成环形链表（类似钟表面），把指针指向最老的页面（最先进来）。</li>
+<li>当发生一个缺页中断时，考察指针所指向的最老页面。若它的访问位为0，立即淘汰；若访问位为1，则把该位置为0，然后指针往下移动一格。如此下去，直到找到被淘汰的页面，然后把指针移动到它的下一格。</li>
+</ul>
+<p>二、具体实现</p>
+<figure data-type="image" tabindex="53"><img src="https://memorykki.github.io/post-images/os-interview/66.png" alt="" loading="lazy"></figure>
+<p>resident bit：存在位，代表是否存在。如果是1，代表在物理内存是存在的，表示映射的关系是正常的。如果是0，就不能正常的映射。<br>
+used bit：如果是1代表当前的页被访问过一次，硬件支持将其置为1。（这个位可以硬件自动的操作，同时也可以由软件操作）<br>
+frame number：页帧号<br>
+时钟页面置换算法的依据就是第二个位------used bit</p>
+<p>三、示例</p>
+<figure data-type="image" tabindex="54"><img src="https://memorykki.github.io/post-images/os-interview/67.png" alt="" loading="lazy"></figure>
+<p>其中的置1操作是由硬件自动实现的。<br>
+替换的情况是产生缺页中断时候才会执行的。如果本来就有此内存，则指针是不需要向下移动寻找最老页面。也就是说如果存在，则指针保持不动，只需要置1操作既可。</p>
+<h2 id="65-二次机会法">6.5. 二次机会法</h2>
+<p>一、基础</p>
+<figure data-type="image" tabindex="55"><img src="https://memorykki.github.io/post-images/os-interview/68.png" alt="" loading="lazy"></figure>
+<p>resident bit：存在位，代表是否存在。如果是1，代表在物理内存是存在的，表示映射的关系是正常的。如果是0，就不能正常的映射<br>
+used bit：如果是1代表当前的页被访问过一次，硬件支持将其置为1。（这个位可以硬件自动的操作，同时也可以由软件操作）<br>
+dirty bit：如果执行了一个写操作，那么这个位会置为1；如果只是读操作，那么这个位是0。这个bit的设置也是由硬件来完成的。<br>
+当某一个运行的程序，对某一页进行访问之后。</p>
+<p>如果是写操作，硬件会将used bit和dirty bit都置为1.<br>
+如果是读操作。硬件会将used bit置为1，而dirty bit还是0.<br>
+这个bit可以区分读和写，但是对我们的置换算法有什么帮助呢？<br>
+解析：</p>
+<p>因为我们的算法是换入换出算法，所以如果当应用程序对内存进行读操作的时候，这个内存与磁盘的内容是一样的，所以只需要将其释放掉就可以了，不需要进行换入换出的操作。<br>
+而如果应用程序对内存进行了写操作的时候，这时表面与磁盘的内容不一样，替换的时候就需要把内容换入换出。<br>
+这时，两个bit都用上了，来减少硬盘的访问也就是减少写回操作的次数。</p>
+<figure data-type="image" tabindex="56"><img src="https://memorykki.github.io/post-images/os-interview/69.png" alt="" loading="lazy"></figure>
+<p>由于used=1，dirty=1的页会循环两次才会被替换出去，所以很形象生动的称之为二次机会法。<br>
+通过这种方式，可以把经常使用dirty bit的这个页有更多的机会留着内存中来。而不会被换到内存中去。对硬盘的访问次数也会减少。</p>
+<p>二、示例<br>
+带有w表示对此页进行的是写操作而不是读操作，读操作是不带w<br>
+此时考虑两个位，used bit和dirty bit</p>
+<figure data-type="image" tabindex="57"><img src="https://memorykki.github.io/post-images/os-interview/610.png" alt="" loading="lazy"></figure>
+<p>比较接近LRU算法，优先的把只读的页换出去了，对于可写的页减少了换出去的概率，对于可以减少回写的概率。</p>
+<h2 id="66-最不常用算法">6.6. 最不常用算法</h2>
+<p>一、基础<br>
+最不常用算法（Least Frequently Used，LFU）<br>
+基本思路：<br>
+当一个缺页中断发生时，选着访问次数最少的那个页面，并淘汰之。被访问的次数也会很少。</p>
+<p>实现方法：<br>
+对每个页面设置一个访问计数器，每当一个页面被访问时，该页面的访问计数器加1。每当反生缺页中断时，淘汰计数器最小的那个页面。</p>
+<p>问题：<br>
+增加计数器会消耗硬件资源，会浪费空间，而选择次数最少的那个意味在要遍历整个链表，耗费时间，实现比较费时费力。而且当一个页面在进程开始的时使用得很多，但是以后就不再使用了，LFU还是会保留。（根据该点的解决方法：定时的把次数寄存器右移一位）</p>
+<p>LRU和LFU的区别：<br>
+LRU考察的是多久未访问，时间越短越好；而LFU考察的是访问的次数或频度，访问次数越多越好。</p>
+<p>二、示例</p>
+<figure data-type="image" tabindex="58"><img src="https://memorykki.github.io/post-images/os-interview/611.png" alt="" loading="lazy"></figure>
+<p>以上操作是将访问次数最多的替换出去。</p>
+<h2 id="67-belady现象-比较">6.7. Belady现象、比较</h2>
+<p>一、Belady现象<br>
+（Belady是一个科学家的名字，不必纠结）<br>
+定义：<br>
+在采用FIFO算法时，有时会出现分配的物理页面数增加，缺页率反而提高的异常现象。</p>
+<p>Belady现象的原因：<br>
+FIFO算法的置换特征与进程访问内存的动态特征是矛盾的，与置换算法的目标是不一致的（既替换较少使用的页面），因此，被它替换出去的页面并不一定是进程不会访问的。</p>
+<p>二、Belady现象示例<br>
+1、当分3个物理页的情况—出现9次中断缺失</p>
+<figure data-type="image" tabindex="59"><img src="https://memorykki.github.io/post-images/os-interview/612.png" alt="" loading="lazy"></figure>
+<p>2、当分4个物理页的情况—出现10次中断缺失</p>
+<figure data-type="image" tabindex="60"><img src="https://memorykki.github.io/post-images/os-interview/613.png" alt="" loading="lazy"></figure>
+<p>结果：<br>
+出现了物理页，给了更多的物理页，但是出现页缺失的情况更多</p>
+<p>相比之下，LRU算法是符合预期情况的，给的硬件资源越多，产生中断页缺失的情况就会越少。</p>
+<figure data-type="image" tabindex="61"><img src="https://memorykki.github.io/post-images/os-interview/614.png" alt="" loading="lazy"></figure>
+<p>原因：<br>
+LRU算法满足某种栈的属性，而FIFO算法不满足某种栈的属性，所以会导致Belady现象。</p>
+<p>三、LRU、FIFO、Clock的比较<br>
+1、性质的比较</p>
+<figure data-type="image" tabindex="62"><img src="https://memorykki.github.io/post-images/os-interview/615.png" alt="" loading="lazy"></figure>
+<p>2、性能的比较</p>
+<figure data-type="image" tabindex="63"><img src="https://memorykki.github.io/post-images/os-interview/616.png" alt="" loading="lazy"></figure>
+<h2 id="68-问题-工作集模型">6.8. 问题、工作集模型</h2>
+<p>局部页面置换算法都是针对一个正在运行的程序来讲的，但是操作系统支持多个应用程序。</p>
+<figure data-type="image" tabindex="64"><img src="https://memorykki.github.io/post-images/os-interview/617.png" alt="" loading="lazy"></figure>
+<p>以上可见，只是仅仅增加了一个物理页帧，就对整个页面置换算法造成很大的效果影响。如果对一个程序固定一个物理页帧，其实是在某一个程度上限制了这个程序产生缺页的特点。因为其对物理内存的需求是动态可变的。<br>
+而前面所诉的前提是物理页帧是假设为固定的。这样就限制了灵活性。但是可以根据不同的运行阶段，动态分配调整物理页帧的大小，这点就是全局页面置换算法要考虑的问题。</p>
+<p>一、工作集模型<br>
+前面介绍的各种页面置换算法都是基于一个前提的，既程序的局部性原理。</p>
+<p>如果局部性原理不成立，那么各种页面置换算法就没有什么分别，也没有什么意义。例如：假设进程对逻辑页面的访问顺序是1,2,3,4,5,6,7,8,9…,即单调递增，那么在物理页面数有限的前提下，不管采用何种置换算法，每次的页面访问都必然导致缺页中断。<br>
+如果局部性原理是成立的，那么如何来证明它的存在，如何来对它进行定量地分析？这就是工作集模型。<br>
+1、工作集的定义：<br>
+一个进程当前正在使用的逻辑页面集合，可以用一个二元函数W(t，△)来表示。<br>
+二元函数W(t，△) 其中参数如下：</p>
+<figure data-type="image" tabindex="65"><img src="https://memorykki.github.io/post-images/os-interview/618.png" alt="" loading="lazy"></figure>
+<p>例子：</p>
+<figure data-type="image" tabindex="66"><img src="https://memorykki.github.io/post-images/os-interview/619.png" alt="" loading="lazy"></figure>
+<p>这表明t2具有良好的局部性，t1有一定的局部性，但是整体的局部性不如t2的效果好。</p>
+<p>2、工作集大小的变化：<br>
+进程开始执行后，随着访问新页面逐步建立较稳定的工作集。当内存访问的局部性区域的位置大致稳定时，工作集带下也大致稳定；局部性区域的位置改变时，工作集快速扩张和收缩过渡到下一个稳定值。</p>
+<figure data-type="image" tabindex="67"><img src="https://memorykki.github.io/post-images/os-interview/619.png" alt="" loading="lazy"></figure>
+<p>二、常驻集模型<br>
+常驻集是指在当前时刻，进程实际驻留在内存当中的页面集合。</p>
+<p>工作集是进程运行过程中固有的性质，而常驻集取决于系统分配给进程的物理页面数目（物理空间的大小），以及所采用的页面置换算法。来决定到底把哪些页面放在内存中来。<br>
+常驻集是当前运行的程序访问的页在哪些在内存中；而工作集指的是程序运行中所需要访问的页是哪些，这表示有些页是不在内存中的，只有部分页是在内存中的。<br>
+如果一个进程的整个工作集读在内存当中，既常驻集属于工作集，那么进程将很顺利地进行运行，而不会造成太多的缺页中断（直到工作集发生剧烈变动，从而过渡到另一个状态）。<br>
+当进程常驻集的大小达到某个数目之后，再给它分配更多的物理页面，缺页率也不会明显下降，可以给其他运行的程序，使总的缺页比较少。<br>
+6.9两个全局置换算法<br>
+一、工作集页置换算法<br>
+1、基本思想<br>
+有一个size，代表了其过去形成工作集的大小。窗口里面的页是当前时间内被访问到的页。随着时间的挪动平移，如果某一个不在这个时间的窗口之内，这个页也会被丢到，而并不是说要等到缺页的时候才会丢页。也就是这个页不属于这个窗口了，就会被替换。</p>
+<p>2、示例</p>
+<figure data-type="image" tabindex="68"><img src="https://memorykki.github.io/post-images/os-interview/620.png" alt="" loading="lazy"></figure>
+<p>结果如下：<br>
+1----edac----abcd 6----dbce----bcde<br>
+2----dacc----acd 7----bcec----bce<br>
+3----accd----acd 8----cece----ce<br>
+4----ccdb----bcd 9----ecea----ace<br>
+5----cdbc----bcd 10—cead----acde</p>
+<p>分析：<br>
+并不是因为缺页而丢弃，而是因为不在这个窗口当中的所以老页都会被换出去。这样可以确保物理内存中有足够的页存在，可以减少页面置换降低，这个是站着整个系统层面上看的。</p>
+<h2 id="69-缺页率页面置换算法">6.9. 缺页率页面置换算法</h2>
+<p>1、可变分配策略：<br>
+常驻集大小可变。例如：每个进程在刚开始运行的时候，先根据程序大小给它分配一定数目的物理页面，然后在进程运行过程中，再动态地调整常驻集的大小。根据缺页率来改变，缺页率高，可以增加常驻集；缺页率降低，可以减小常驻集。<br>
+缺页率算法（PFF，page fault frequency）</p>
+<p>2、缺页率<br>
+定义：<br>
+表示“缺页次数/内存访问次数”（比率）或“缺页的平均时间间隔的倒数”。</p>
+<p>影响缺页率的因素：</p>
+<p>页面置换算法<br>
+分配给进程的物理页面数目<br>
+页面本身的大小<br>
+程序的编写方法</p>
+<figure data-type="image" tabindex="69"><img src="https://memorykki.github.io/post-images/os-interview/621.png" alt="" loading="lazy"></figure>
+<p>使整个系统保持一个平衡，使所有的程序到保持一个较低的缺页率。</p>
+<p>一个交替的工作集计算明确的试图最小化页缺失</p>
+<p>当缺页率高的时候-增加工作集<br>
+当缺页率低的时候-减少工作集<br>
+3、算法的实现</p>
+<figure data-type="image" tabindex="70"><img src="https://memorykki.github.io/post-images/os-interview/622.png" alt="" loading="lazy"></figure>
+<p>4、示例</p>
+<figure data-type="image" tabindex="71"><img src="https://memorykki.github.io/post-images/os-interview/623.png" alt="" loading="lazy"></figure>
+<p>分析：<br>
+当前的阈值是2，也就是如果两次产生中断的时间大于2的话，话增加工作；而如果中断的时间小于等于2的话，就会动态的减少工作集。</p>
+<p>在时间1时刻，产生一个缺失中断。<br>
+在时间4时刻，由于没有b，所以也产生了一次缺失中断。并且，由于1-4之间的时刻大于2，所以会动态的去除在这段时刻中没有读取的页，也是就是ae，所以此时只有bcd三个工作页。<br>
+在时间6时刻，由于没有e，产生了一次缺失中断。并且，由于4-6之间的时刻等于2，所以会动态的增加所需要的页。<br>
+在时间9时刻，由于没有页a，所以产生了一次缺失中断。并且，由于6-9之间的时刻大于2，所以也会动态的去除在这段时间中没有读取的页，也就是bd，因为这段时间只有ec的页需要操作，此时就只有ace三个工作页。<br>
+5、小结<br>
+这两个算法是根据工作集的大小动态的调整的，前面只是满的时候才调整，这个是他们之间的主要区别。所有对于操作系统而言，为了应对多个应用程序，采用全局的页面置换算法更加的合适。</p>
+<h2 id="610-抖动问题">6.10. 抖动问题</h2>
+<p>抖动问题是对工作集和常驻集做进一步的讲解。<br>
+1、抖动的定义<br>
+如果分配给一个进程的物理页面太少，不能包含整个的工作集，既常驻集属于工作集，那么进程将会造成很多的缺页中断，需要频繁地在内存与外存之间替换页面，从而使进程的运行速度变得很慢，将这种状态称为“抖动”。</p>
+<p>2、产生抖动的原因<br>
+随着驻留内存的进程的数目增加，分配给每个进程的物理页面数不断减小，缺页率不断上升。所以操作系统要选择一个适当的进程数目和进程需要的帧数，以便在并发水平和缺页率之间达到一个平衡。</p>
+<p>3、解决<br>
+当运行的程序过多时，cpu要执行多次的换入换出换出io操作，而导致程序没有执行，导致cpu的利用率降低，造成了电脑的卡顿。</p>
+<figure data-type="image" tabindex="72"><img src="https://memorykki.github.io/post-images/os-interview/624.png" alt="" loading="lazy"></figure>
+<p>蓝线的比值越大，表示缺页的频率很低，cpu利用率较高。（其中页缺失的服务时间是不变的）<br>
+当平均页缺失时间 = 页缺失服务时间 的时候，这时候的效率就接近最完美的点。</p>
+<h1 id="7-进程">7. 进程</h1>
+<h2 id="71-进程的定义">7.1. 进程的定义</h2>
+<p>在某种程度上， 可以将应用程序看成是一个进程，其将会消耗耕种各样的计算机资源。</p>
+<p>定义：<br>
+一个具有一定独立功能的程序在一个数据集合上的一次动态执行过程。</p>
+<p>只有当操作系统把执行程序调入到我们的内存之后，让这个程序可以执行起来。（能够让通过cpu对这个程序执行一条条的指令，读取数据完成一定的功能）。也就是静态的执行程序，通过cpu变成一个动态的执行过程，而这个动态的执行过程就是进程。<br>
+整个的功能是由程序的代码决定的。</p>
+<h2 id="72-进程的组成">7.2. 进程的组成</h2>
+<p>1、一个进程应该包括</p>
+<p>程序的代码<br>
+程序处理的数据<br>
+程序计数器中的值，指示下一条将运行的指令<br>
+一组通用的寄存器的当前值，堆，栈<br>
+一组系统资源（如打开的文件）<br>
+总之，进程包含了正在运行的一个程序的所以状态信息。</p>
+<p>2、进程与程序的联系</p>
+<p>程序是产生进程的基础<br>
+程序是静态的代码，代码限制了进程完成是什么样的功能<br>
+程序的每次运行构成不同的进程<br>
+程序多次运行过程中输入的数据不一样，产生的结果是不一样的，所以构成了不一样的进程<br>
+进程是程序功能的体现<br>
+尽管输出可能不同，但是这个程序的功能是一样的<br>
+通过多次执行，一个程序可对应多个进程；通过调用关系，一个进程可包括多个程序。<br>
+进程和程序之间是一个多对多的关系。<br>
+3、进程与程序的区别</p>
+<p>进程是动态的，程序是静态的；程序是有序代码的集合；进程是程序的执行，进程有核心态/用户态。<br>
+进程是暂时的，程序是永久的；进程是一个状态变化的过程，程序可长久保存。<br>
+进程与程序的组成不同；进程的组成包括程序、数据和进程控制块（既进程状态信息）<br>
+一个很有趣进程与cpu的类比：</p>
+<figure data-type="image" tabindex="73"><img src="https://memorykki.github.io/post-images/os-interview/71.png" alt="" loading="lazy"></figure>
+<p>cpu在工作中会存在切换处理不同程序的</p>
+<h2 id="73-进程的特点">7.3. 进程的特点</h2>
+<p>动态性：可动态地创建，结束进程；<br>
+并发性：进程间可以被独立调度并占有处理机运行；（并发与并行的区别，前者是可以为1个cpu，后者必须要多个cpu）<br>
+独立性：不同进程的工作不互相影响，也就是进程不会破坏代码数据的正常执行。（页表的支持）<br>
+制约性：因访问共享数据/资源或进程间同步而产生制约</p>
+<figure data-type="image" tabindex="74"><img src="https://memorykki.github.io/post-images/os-interview/72.png" alt="" loading="lazy"></figure>
+<p>a–体现了动态性 / b–体现了独立性 / c–体现了制约性<br>
+描述进程的数据结构：进程控制块（Process Control Block，PCB）<br>
+操作系统为每一个进程都维护了一个PCB，用来保存与该进程有关的各种状态信息和需要资源的情况等等。</p>
+<h2 id="74-进程控制结构">7.4. 进程控制结构</h2>
+<p>1、进程控制块：操作系统管理控制进程运行所用的信息集合。</p>
+<p>操作系统用PCB来描述进程的基本情况以及运行变化的过程，PCB是进程存在的唯一标志，如果进程消失了那么其对应的PCB也会消失，是一一对应的关系。<br>
+2、使用进程控制块</p>
+<p>进程的创建：为该进程生产一个PCB；<br>
+进程的终止：回收它的PCB；<br>
+进程的组织管理：通过对PCB的组织管理来实现；<br>
+问题：PCB具体包含什么信息？如何组织的？进程的状态转换…?</p>
+<p>3、PCB包含的信息</p>
+<ul>
+<li>进程标识信息。<br>
+如本进程的标识（进程号，执行的次数…），本进程的产生者标识（父进程标识）；用户标识。</li>
+<li>处理机状态信息保存区<br>
+保存进程的运行现场信息：</li>
+</ul>
+<p>用户可见寄存器：用户程序可以使用的数据，地址等寄存器。<br>
+控制和状态寄存器：如程序计数器（PC），程序状态字（PSW）<br>
+栈指针：过程调用/系统调用/中断处理和返回时需要用到它。找到当前运行的位置。</p>
+<ul>
+<li>进程控制信息<br>
+操作系统需要对这个进程进行管理和控制调度和</li>
+</ul>
+<p>调度和状态信息：用于操作系统调度进程并占用处理机使用。<br>
+进程间通信信息：为支持进程间与通信相关的各种标识，信号，信件等。这些信息存在接受方的进程控制块中<br>
+存储管理信息：包含有指向本进程映射存储空间的数据结构。<br>
+进程所用资源：说明有进程打开、使用的系统资源，如打开的文件等。<br>
+有关数据结构连接信息：进程可以连接到一个进程队列中，或连接到相关的其他进程的PCB<br>
+4、PCB的组织方式</p>
+<figure data-type="image" tabindex="75"><img src="https://memorykki.github.io/post-images/os-interview/73.png" alt="" loading="lazy"></figure>
+<p>链表：同一状态的进程其PCB称一链表，多个状态对应多个不同的链表。各个状态的进程形成不同的链表：就绪链表，阻塞链表。<br>
+索引表：同一个状态的进程归入一个index表（由index指向PCB），多个状态对应多个不同的index表。各个状态的进行形成不同的索引表：就绪索引表、阻塞索引表<br>
+一般来说会采取链表，因为进程的控制是动态的插入和删除的，所以链表组织方式比较方便，而索引开销比较大。当然如果一开始就固定住了进程的数目，索引也不失为一个选择。</p>
+<p>以上是围绕进程静态部分说明，组成，特点等等。<br>
+一下是围绕进程动态的状态特点说明，有3个方面的内容：</p>
+<p>进程的生命周期管理<br>
+进程状态变化模型<br>
+进程挂起模型</p>
+<h2 id="75-进程的生命期管理">7.5. 进程的生命期管理</h2>
+<p>进程的生命是指进程的创建到结束这么一整个的生命期。<br>
+进程的生命期管理有以下几个时期：</p>
+<p>进程创建<br>
+进程运行：正在占用cpu，执行这个进程<br>
+进程等待：由于某种特殊原因需要等待<br>
+进程唤醒：当等待的条件满足，需要唤醒<br>
+进程结束<br>
+1、进程创建<br>
+引起进程创建的3个主要事件：</p>
+<ul>
+<li>系统初始化时</li>
+<li>用户请求创建一个新进程</li>
+<li>正在运行的进程执行了创建进程的系统调用<br>
+但是创建了新的进程不一定可以执行。</li>
+</ul>
+<p>2、进程运行<br>
+内核选择一个就绪的进程，让它占用处理机并执行<br>
+就绪态-----&gt;执行态</p>
+<figure data-type="image" tabindex="76"><img src="https://memorykki.github.io/post-images/os-interview/74.png" alt="" loading="lazy"></figure>
+<p>其中涉及两个问题：</p>
+<ul>
+<li>为何选择？</li>
+<li>如何选择？（涉及调度算法）</li>
+</ul>
+<p>3、进程等待<br>
+在以下情况下，进程等待（阻塞）:</p>
+<p>请求并等待系统服务，无法马上完成</p>
+<ul>
+<li>启动某种操作，无法马上完成</li>
+<li>需要的数据没有到达</li>
+</ul>
+<figure data-type="image" tabindex="77"><img src="https://memorykki.github.io/post-images/os-interview/75.png" alt="" loading="lazy"></figure>
+<p>ps：进程等待事件的发起是有自己发起的。因为进程只能自己阻塞自己，因为只有进程自身才能知道何时需要等待某种事件的发生。<br>
+4、进程唤醒<br>
+唤醒进程的原因：</p>
+<ul>
+<li>被阻塞进程需要的资源可被满足</li>
+<li>被阻塞进程等待的事件到达</li>
+<li>将该进程的PCB插入到就绪队列</li>
+</ul>
+<figure data-type="image" tabindex="78"><img src="https://memorykki.github.io/post-images/os-interview/76.png" alt="" loading="lazy"></figure>
+<p>ps：进程只能被别的进程或者操作系统唤醒</p>
+<p>5、进程结束<br>
+在以下四种情况下，进程结束</p>
+<ul>
+<li>正常退出（自愿的）</li>
+<li>错误退出（自愿的）</li>
+<li>致命错误（操作系统强制性的）</li>
+<li>被其他进程所杀（强制性的）</li>
+</ul>
+<figure data-type="image" tabindex="79"><img src="https://memorykki.github.io/post-images/os-interview/77.png" alt="" loading="lazy"></figure>
+<h2 id="76-进程状态变化模型">7.6. 进程状态变化模型</h2>
+<p>1、进程的三种基本状态：<br>
+进程在生命结束前处于且仅处于三种基本状态之一，不同系统设置的进程状态数目不同。</p>
+<ul>
+<li>运行状态（Running）：当一个进程正在处理机上运行时。</li>
+<li>就绪状态（Ready）：一个进程获得了除处理机之外的一切所需资源。一旦得到处理机即可运行。</li>
+<li>等待状态（又称阻塞状态Blocked）：一个进程正在等待某一事件而暂停运行时。如等待某资源，等待输入/输出完成。</li>
+</ul>
+<p>2、三状态变化图：</p>
+<figure data-type="image" tabindex="80"><img src="https://memorykki.github.io/post-images/os-interview/78.png" alt="" loading="lazy"></figure>
+<p>进程其他的基本状态：</p>
+<p>创建状态（New）：一个进程正在被创建，还没被转到就绪状态之前的状态。<br>
+结束状态（Exit）：一个进程正在从系统中消失时的状态，这是因为进程结束或由于其他原因所导致。<br>
+3、五状态变化图：</p>
+<figure data-type="image" tabindex="81"><img src="https://memorykki.github.io/post-images/os-interview/79.png" alt="" loading="lazy"></figure>
+<p>就绪态的出现是由于调度机制的存在。</p>
+<p>4、可能的状态变化如下：</p>
+<p>NULL-&gt;New: 一个新进程被产生出来执行一个程序。<br>
+New-&gt;Ready: 当进程被创建完成并初始化后，一切就绪准备运行时，变为就绪状态。（不会持续很久，也就只是一个PCB的初始化。）<br>
+Ready-&gt;Running ：处于就绪状态的进程被进程调度程序选中后，就分配到处理机上来运行。<br>
+Running-&gt;Exit ：当进程表示它已经完成或出现错误，当前运行进程会有操作系统作结束处理。<br>
+Running-&gt;Ready ：处于运行状态的进程在其运行过程中，由于分配给它的处理机时间片用完而让出处理机。（操作系统完成）<br>
+Runing-&gt;Blocked ：当进程请求某样东西切必须等待时。（例如等待一个定时器的到达，读写文件，因为过程比较慢）<br>
+Blocked-&gt;Ready ：当进程要等待某事件到来时，它从阻塞状态变到就绪状态。（同样由操纵系统完成）</p>
+<h2 id="77-进程的挂起">7.7. 进程的挂起</h2>
+<p>进程挂起和进程阻塞的不一样的。<br>
+进程在挂起状态意味着进程没有占有内存空间。处于挂起状态的进程影像在磁盘上。</p>
+<p>1、挂起状态</p>
+<ul>
+<li>阻塞挂起状态（Blocked-suspend）：进程在外存并等待某事件的出现；</li>
+<li>就绪挂起状态（Ready-suspend）：进程在外存，但只要进入内存，即可运行。</li>
+</ul>
+<p>2、与挂起中相关的状态转换<br>
+挂起（Suspend）：把一个进程从内存转到外存；可能有以下几种情况：</p>
+<ul>
+<li>阻塞到阻塞挂起：没有进程处于就绪状态或就绪进程要求更多内存资源时，会进行这种转换，以提高新进程或运行就绪进程；</li>
+<li>就绪到就绪挂起：当有高优先级阻塞（系统认为会很快就绪的）进程和低优先级就绪进程时，系统会选择挂起低优先级就绪进程；</li>
+<li>运行到就绪挂起：对抢先式分时系统，当有高优先级阻塞挂起进程因事件出现（空间不够）而进入就绪挂起，系统可能会把运行进程转到就绪挂起状态。</li>
+</ul>
+<p>在外存时的状态转换：<br>
+阻塞挂起到就绪挂起：当有阻塞挂起进程相关事件出现时（也就是条件满足），系统会把阻塞挂起进程转换到就绪挂起进程。</p>
+<p>解挂/激活（Activate）：把一个进程从外存转到内存；可能有以下几种情况：</p>
+<ul>
+<li>就绪挂起到就绪：没有就绪进程或挂起就绪进程优先级高于就绪进程时，会进行这种转换。</li>
+<li>阻塞挂起到阻塞：当一个进程释放足够内存时，系统会把一个高优先级阻塞挂起（系统认为会很快出现所等待的事件）进程转换为阻塞进程。</li>
+</ul>
+<p>问题：操作系统怎么通过PCB的定义的进程状态来管理PCB，帮助完成进程的调度过程？</p>
+<figure data-type="image" tabindex="82"><img src="https://memorykki.github.io/post-images/os-interview/710.png" alt="" loading="lazy"></figure>
+<p>以进程为基本结构的os，选择某一个进程变成某一种状态都是有操作系统来完成的。最底层为CPU调度程序（包括中断处理等）。上面一层为一组各式各样的进程。</p>
+<p>3、状态队列<br>
+状态队列是操作系统管理进程的一个很重要的数据结构</p>
+<ul>
+<li>由操作系统来维护一组队列，用来表示系统当中所以进程的当前状态；</li>
+<li>不同的状态分别用不同的队列来表示（就绪队列，各种类型的阻塞队列）；</li>
+<li>每个进程的PCB都根据它的状态加入到相应的队列当中，当一个进程的状态发生变化时，它的PCB从一个状态队列中脱离出来，加入到另外一个队列。</li>
+</ul>
+<p>4、状态表示方法</p>
+<figure data-type="image" tabindex="83"><img src="https://memorykki.github.io/post-images/os-interview/711.png" alt="" loading="lazy"></figure>
+<p>要注意，如果事件1只能满足一个进程，那么只能把这一个进程从阻塞态变成就绪态。如果事件1产生之后，所以等待事件1的进程都等到满足，那么这些进程都会挂到就绪队列里面去。</p>
+<p>线程管理：<br>
+很久之前，操作系统一直以进程作为独立运行的基本单位，直到80年代中期，人们有提出了更小独立运行的基本单位—线程。</p>
+<ul>
+<li>为什么使用线程？</li>
+<li>什么是线程</li>
+<li>线程的实现</li>
+<li>多线程编程接口举例</li>
+</ul>
+<h2 id="78-为什么使用线程">7.8. 为什么使用线程</h2>
+<p>例子：</p>
+<figure data-type="image" tabindex="84"><img src="https://memorykki.github.io/post-images/os-interview/712.png" alt="" loading="lazy"></figure>
+<p>1、单进程的实现方法</p>
+<figure data-type="image" tabindex="85"><img src="https://memorykki.github.io/post-images/os-interview/713.png" alt="" loading="lazy"></figure>
+<p>可能出现的问题：</p>
+<ul>
+<li>播放出来的声音能否连续？</li>
+<li>各个函数之间不是并发执行，影响资源的使用效率。</li>
+</ul>
+<p>2、多进程的实现方法</p>
+<figure data-type="image" tabindex="86"><img src="https://memorykki.github.io/post-images/os-interview/714.png" alt="" loading="lazy"></figure>
+<p>可能出现的问题：</p>
+<ul>
+<li>进程之前如何通信，共享数据？</li>
+<li>维护进程的系统开销比较大：<br>
+创建进程时，分配资源，建立PCB；撤销进程时，回收资源，撤销PCB；进程切换时，保存当前进程的状态信息。</li>
+</ul>
+<p>根据以上问题，提出一个新的实体，满足一下特性：</p>
+<ul>
+<li>实体之间可以并发地执行；</li>
+<li>实体之间共享相同的地址空间；</li>
+</ul>
+<p>这个实体就是：线程（Thread）</p>
+<h2 id="79-什么是线程">7.9. 什么是线程</h2>
+<p>1、定义：进程当中的一条执行流程</p>
+<p>2、从两个方面来重新理解进程</p>
+<ul>
+<li>从资源组合的角度：<br>
+进程把一组相关的资源组合起来，构成了一个资源平台（环境），包括地址空间（代码段，数据段）、打开的文件等各种资源；</li>
+<li>从运行的角度：<br>
+代码在这个资源平台上的一条执行流程（线程）。</li>
+</ul>
+<figure data-type="image" tabindex="87"><img src="https://memorykki.github.io/post-images/os-interview/715.png" alt="" loading="lazy"></figure>
+<p>ps：进程中的堆，代码段，数据段是线程所共享的内容。而各自又有独特的内容，比如所堆栈，程序计数器，寄存器（不同的执行留和控制流）。所以其有独立拥有的部分，也有公有的部分。</p>
+<p>3、线程 = 进程 - 共享资源<br>
+线程的优点：</p>
+<ul>
+<li>一个进程中可以同时存在多个线程</li>
+<li>各个线程之间可以并发地执行</li>
+<li>各个线程之间可以共享地址空间和文件等资源</li>
+</ul>
+<p>线程的缺点：<br>
+一个线程奔溃，会导致其所属进程的所以线程奔溃，安全没有一定的保障。</p>
+<p>4、不同操作系统对线程的支持</p>
+<figure data-type="image" tabindex="88"><img src="https://memorykki.github.io/post-images/os-interview/716.png" alt="" loading="lazy"></figure>
+<p>5、线程所需的资源</p>
+<figure data-type="image" tabindex="89"><img src="https://memorykki.github.io/post-images/os-interview/717.png" alt="" loading="lazy"></figure>
+<p>6、线程与进程的比较</p>
+<ul>
+<li>进程是资源分配单位，线程是CPU调度；</li>
+<li>进程拥有一个完整的资源平台，而线程只独享必不可少的资源，如寄存器和栈；</li>
+<li>线程同样具有就绪、阻塞和执行三种基本状态，同样具有状态之间的转换关系；</li>
+<li>线程能减少并发执行的时间和空间开销；</li>
+</ul>
+<p>线程的创建时间比进程短；<br>
+线程的终止时间比进程短；<br>
+同一进程内的线程切换时间比进程短；<br>
+由于同一进程的各线程间共享内存和文件资源，可直接进行不通过内核的通信。<br>
+（切换进程的时候，需要把页表也切换掉，切换页表的开销比较大，因为硬件的信息无效，需要重新加载）</p>
+<h2 id="710-线程的实现">7.10. 线程的实现</h2>
+<p>主要有三种线程的实现方式：</p>
+<ul>
+<li>用户线程：在用户空间实现；</li>
+<li>内核线程：在内核中实现；</li>
+<li>轻量级进程：在内核汇总实现，支持用户线程</li>
+</ul>
+<p>用户线程：操作系统看不到的线程称为用户线程<br>
+内核线程：操作系统管理起来（能够看见）的线程称为内核线程</p>
+<p>1、用户线程与内核线程的对应关系</p>
+<ul>
+<li>多对一</li>
+</ul>
+<figure data-type="image" tabindex="90"><img src="https://memorykki.github.io/post-images/os-interview/718.png" alt="" loading="lazy"></figure>
+<ul>
+<li>一对一</li>
+</ul>
+<figure data-type="image" tabindex="91"><img src="https://memorykki.github.io/post-images/os-interview/719.png" alt="" loading="lazy"></figure>
+<ul>
+<li>多对多</li>
+</ul>
+<figure data-type="image" tabindex="92"><img src="https://memorykki.github.io/post-images/os-interview/720.png" alt="" loading="lazy"></figure>
+<p>2、用户进程</p>
+<figure data-type="image" tabindex="93"><img src="https://memorykki.github.io/post-images/os-interview/721.png" alt="" loading="lazy"></figure>
+<p>线程控制块（TCB）是在库里面实现的，对于操作系统而言，其看不见TCB，只能看见进程的信息，但是进程里面的线程信息，是有线程管理的库来实现的。<br>
+在用户空间实现的线程机制，它不依赖与操作系统的内核，由一组用户级的线程库函数来完成线程的管理，包括进程的创建，终止，同步和调度等。</p>
+<p>由于用户线程的维护由相应进程来完成（通过线程库函数），不需要操作系统内核了解用户线程的存在，可用于不支持线程技术的多进程操作系统；<br>
+每个进程都需要它自己私有的线程控制块（TCB）列表，用来跟踪记录它的各个线程的状态信息（PC，栈指针，寄存器），TCB由线程库函数来维护；<br>
+用户线程的切换也是由线程库函数来完成，无需用户态/核心态切换，所以速度特别快；<br>
+允许每个进程拥有自定义的线程调度算法。<br>
+否则如果进程被操作系统调度为阻塞态，则其下的所有线程都无法允许。</p>
+<p>用户线程的缺点：</p>
+<ul>
+<li>阻塞性的系统调用如何实现？如果一个线程发起系统调用而阻塞，则整个进程在等待。因为操作系统只能看见进程，所以这个进程阻塞，旗下所以的线程都会阻塞。</li>
+<li>当一个线程开始执行后，除非它主动地交出CPU的使用权，否则它所在的进程当中的其他线程将无法运行。</li>
+<li>由于时间片分配给进程，故与其他进程比，在多线程执行时，每个线程得到的时间片较少，执行会较慢。</li>
+</ul>
+<p>3、内核线程<br>
+（操作系统看得见，TCB是放在内核里面的）</p>
+<figure data-type="image" tabindex="94"><img src="https://memorykki.github.io/post-images/os-interview/722.png" alt="" loading="lazy"></figure>
+<p>内核线程是指在操作系统的内核当中实现的一种线程机制，由操作系统的内核来完成线程的创建，终止和管理。</p>
+<p>在支持内核线程的操作系统中，由内核来维护进程和线程的上下文信息（PCB和TCB）；<br>
+线程的创建，终止和切换都是通过系统调用/内核函数的方式来进行，由内核来完成，因此系统开销较大；<br>
+在一个进程当中，如果某个内核线程发起系统调用而被阻塞，并不影响其他内核线程的运行；<br>
+时间片分配给线程，多线程的进程获得更多的cpu时间；<br>
+Windows NT和Windows 200/XP支持内核线程<br>
+4、轻量级进程（LightWeight Process）<br>
+它是内核支持的用户线程，一个进程可有一个或多个轻量级进程，每个轻量级进程有一个单独的内核线程来支持，（Solaris/Linux）</p>
+<figure data-type="image" tabindex="95"><img src="https://memorykki.github.io/post-images/os-interview/723.png" alt="" loading="lazy"></figure>
+<h2 id="711-上下文切换">7.11. 上下文切换</h2>
+<p>1、定义：停止当前运行的进程（从运行状态改变成其他状态）并且调度其他进程（转变成运行状态的）的过程，称为进程的上下文切换（Compress）</p>
+<p>必须在切换之前存储许多部分的进程上下文<br>
+必须能够在之后恢复他们，所以进程不能显示它曾经被暂停过<br>
+必须快速（上下文准换是非常频繁的）<br>
+进程的上下文切换所具体切换的进程所用到的寄存器，使用要关注cpu有哪些寄存器（PC程序计数器，SP堆栈指针）。而在做进程切换的时候，需要将这新信息保存到进程控制块的某一个地方上。</p>
+<p>2、切换的过程</p>
+<figure data-type="image" tabindex="96"><img src="https://memorykki.github.io/post-images/os-interview/724.png" alt="" loading="lazy"></figure>
+<p>所用的信息都是和硬件紧密相连的，所用一般是使用汇编代码来完成编写。</p>
+<p>操作系统为活跃进程准备了进程控制块（PCB）<br>
+操作系统将进程控制块（PCB）放置在一个合适的队列里</p>
+<p>就绪队列<br>
+等待I/O队列（每个设备的队列）<br>
+僵尸队列</p>
+<figure data-type="image" tabindex="97"><img src="https://memorykki.github.io/post-images/os-interview/725.png" alt="" loading="lazy"></figure>
+<h2 id="712-进程控制创建进程">7.12. 进程控制—创建进程</h2>
+<p>window系统下：</p>
+<figure data-type="image" tabindex="98"><img src="https://memorykki.github.io/post-images/os-interview/726.png" alt="" loading="lazy"></figure>
+<p>linux系统下：</p>
+<figure data-type="image" tabindex="99"><img src="https://memorykki.github.io/post-images/os-interview/727.png" alt="" loading="lazy"></figure>
+<p>fork（）创建一个继承的子进程</p>
+<p>复制父进程的所有变量和内存<br>
+复制父进程的所以CPU寄存器（有一个寄存器除外）<br>
+fork（）的返回值</p>
+<p>子进程的fork()返回0<br>
+父进程的fork()返回子进程标识符<br>
+fork()返回值可方便后续使用，子进程可使用getpid()获取PID<br>
+父子进程的主要区别----childPID不一样：</p>
+<figure data-type="image" tabindex="100"><img src="https://memorykki.github.io/post-images/os-interview/728.png" alt="" loading="lazy"></figure>
+<h2 id="713-进程控制加载和执行过程">7.13. 进程控制—加载和执行过程</h2>
+<p>系统调用exec()加载程序取代当前运行的进程</p>
+<figure data-type="image" tabindex="101"><img src="https://memorykki.github.io/post-images/os-interview/79.png" alt="" loading="lazy"></figure>
+<p>其中：<br>
+exec是准备执行一个新的程序，所以当成功的执行了exec之后，后面的printf函数是不会执行到的。<br>
+wait(pid); wait返回了，表示子进程就结束了。</p>
+<p>当执行exec的时候，代码数据都复制了一份，但是PID没有变化。但是执行的代码改变了，也就是另外程序的执行过程，如下所示。</p>
+<figure data-type="image" tabindex="102"><img src="https://memorykki.github.io/post-images/os-interview/730.png" alt="" loading="lazy"></figure>
+<p>执行exec之后，程序的整个控制流会放生完全的变化</p>
+<figure data-type="image" tabindex="103"><img src="https://memorykki.github.io/post-images/os-interview/731.png" alt="" loading="lazy"></figure>
+<ul>
+<li>exec()调用允许一个进程“加载”一个不同的程序并且在main开始执行(事实上_start，系统调用)</li>
+<li>它允许1一个进程指定参数的数量(argc)和它字符串参数数组(argv)</li>
+<li>代码段，数据段，stack（栈）&amp;heap（堆）都会被覆盖</li>
+</ul>
+<p>fork()的简单实现</p>
+<p>对子进程分配内存<br>
+复制父进程的内存和CPU寄存器到子进程里<br>
+在99%的情况里，我们在调用fork()之后调用exec()</p>
+<p>在fork()操作中内存复制是没有作业的<br>
+子进程将可能关闭打开的文件和链接<br>
+对于此情况需要一个优化：<br>
+vfork(),vfork只是复制了一小部分的进程的内容，绝大多数的内容都没有被复制。但是这会使系统调用变成两个fork，增加了编程人员的开销。</p>
+<p>另一个优化：<br>
+通过虚存管理科员实现一个高效的fork实现机制。也就是（Copy on Write，COW）技术，就是写的时候再进行复制。<br>
+当父进程创建子进程的时候，如果采用COW技术时，我们在做实际的子进程地址空间复制的时候并没有真是的复制，只是复制了父进程所需要的元数据—页表等等，实现按需写的情况来复制不同的页。</p>
+<h2 id="714-进程控制等待和终止进程">7.14. 进程控制—等待和终止进程</h2>
+<p>wait()系统调用是被父进程用来等待子进程的结束</p>
+<p>父进程先与子进程死亡—子进程为孤儿进程<br>
+子进程已经死亡，但父进程还没来得及回收—子进程为僵尸进程<br>
+状态转换图：</p>
+<figure data-type="image" tabindex="104"><img src="https://memorykki.github.io/post-images/os-interview/732.png" alt="" loading="lazy"></figure>
+<p>ps：执行exec的时候，程序有可能会处于不同的状态。<br>
+因为在执行exec有两个步骤，一个是加载执行程序，二个是运行执行程序。加载的时候，所需要的时间比较长，所以会处于阻塞状态。</p>
+<h1 id="8-处理器调度">8. 处理器调度</h1>
+<h2 id="81-背景">8.1. 背景</h2>
+<p>1、上下文切换：</p>
+<p>切换CPU的当前任务，从一个进程/线程到另一个<br>
+保存当前进程/线程在PCB/TCP中的执行上下文（CPU状态）<br>
+读取下一个进程/线程的上下文<br>
+2、CPU调度<br>
+从就绪队列中挑选一个进程/线程作为CPU将要运行的下一个进程/线程<br>
+调度程序：挑选进程/线程的内核函数（通过一些调度策略）<br>
+什么时候进程调度？调度算法实现</p>
+<p>问题：在进程/线程的生命周期中的什么时候进行调度？</p>
+<figure data-type="image" tabindex="105"><img src="https://memorykki.github.io/post-images/os-interview/80.png" alt="" loading="lazy"></figure>
+<p>3、内核运行调度程序的条件（满足一条即可）</p>
+<ul>
+<li>一个进程从运行状态切换到等待状态</li>
+<li>一个进程被终结了</li>
+</ul>
+<p>4、是否可以抢占<br>
+不可抢占：</p>
+<p>调度程序必须等待事情结束<br>
+可以抢占：（常用，针对用户态的）</p>
+<p>调度程序在中断被响应后执行<br>
+当前的进程从运行切换到就绪，或者一个进程从等待切换到就绪<br>
+当前运行的进程可以被换出<br>
+抢占使得系统程序更加的灵活和高效。</p>
+<h2 id="82-调度原则">8.2. 调度原则</h2>
+<p>根据什么原则去选择一个进程去执行，这个就是调度的原则<br>
+1、执行模型<br>
+程序在CPU突发和I/O中交替</p>
+<p>每个调度决定都是关于在下一个CPU突发时将哪个动作交给CPU<br>
+在时间分片机制下，线程可能在结束当前CPU突发前被迫放弃CPU<br>
+2、评价的指标</p>
+<ul>
+<li>CPU利用率：CPU处于忙碌状态所占时间的百分比</li>
+</ul>
+<p>cpu利用率越高，可以认为当前系统的效率比较好。进程调度进行得好。</p>
+<ul>
+<li>吞吐量：在单位时间内完成的进程数量</li>
+</ul>
+<p>吞吐量越高，说明进程的效率越好。当然希望当操作系统跑一堆进程时，吞吐率都很高。</p>
+<ul>
+<li>周转时间：一个进程从初始化到结束，包括所有等待时间所花费的时间。</li>
+</ul>
+<p>周转时间越断越好。</p>
+<ul>
+<li>等待时间：进程在就绪队列中的总时间</li>
+</ul>
+<p>指的是出于就绪态的时间越短，就越快被cpu执行</p>
+<ul>
+<li>响应时间：从一个请求被提交到产生第一次响应所花费的总时间</li>
+</ul>
+<p>同样也是越短越好<br>
+以上可以对cpu调度的指标有一个分析。</p>
+<p>人们通常都需要“更快”的服务<br>
+什么是更快：</p>
+<p>传输文件时的高带宽<br>
+玩游戏时的低延迟<br>
+这两个因素是独立的<br>
+和水管类比：</p>
+<p>低延迟：喝水的时候想要一代开水龙头水就流出来<br>
+高带宽：给游泳池充水时希望从水龙头里同时流出大量的水，并且不介意是否存在延迟<br>
+3、算法需达到的效果</p>
+<ul>
+<li>减少响应时间<br>
+及时处理用户的输出并且尽快将输出提供给用户</li>
+<li>减少平均响应时间的波动<br>
+在交互系统中，可虞可预测性比高差异低平均更重要</li>
+<li>增加吞吐量–两个方面<br>
+减少开销（操作系统开销，上下文切换）<br>
+系统资源的高效利用（CPU,I/O设备）</li>
+<li>减少等待时间<br>
+减少每个进程的等待时间</li>
+</ul>
+<p>其实很难满足以上的全部效果，只能泽中或者在特定场合中选择某种特定效果。</p>
+<p>4、公平性<br>
+公平的定义：</p>
+<p>保证每个进程都占用相同的cpu时间<br>
+保证每个进程都等待相同的时间<br>
+公平通常会增加平均响应时间</p>
+<h2 id="83-调度算法">8.3. 调度算法</h2>
+<p>调度算法有三类：</p>
+<ul>
+<li>通常操作系统设计的基本调度算法</li>
+<li>嵌入式设备实时的调度算法</li>
+<li>针对多处理器的调度算法与考虑</li>
+</ul>
+<p>一、常用系统的调用算法</p>
+<p>FCFS （先来先服务） （First Come， First Served）<br>
+SPN（SJF）SRT (短进程优先（短作业优先）剩余时间优先) Shortest Process Next(Shortest Job<br>
+First) Shortest Remaining Time<br>
+HRRN (最高响应比优先) Highest Response Ratio Next<br>
+Round Robin （轮循） 使用时间切片和抢占来轮流执行任务<br>
+Multilevel Feedback Queues （多级反馈队列） 优先级队列中的轮循<br>
+Fair Share Scheduling （公平共享调度）<br>
+二、先来先服务调度（FCFS）</p>
+<figure data-type="image" tabindex="106"><img src="https://memorykki.github.io/post-images/os-interview/81.png" alt="" loading="lazy"></figure>
+<p>如图所示，如果前面的进程越长，后面的进程等待的时间就越长，从而会影响整个系统的周转时间。</p>
+<p>优点：<br>
+简单</p>
+<p>缺点：</p>
+<ul>
+<li>平均等待时间波动较大，平均的周转时间也会比较大</li>
+<li>花费时间少的任务可能排在花费时间长的任务后面，没有考虑抢占</li>
+<li>可能导致I/O和CPU之间的重叠处理（cpu密集型进程会导致I/O设备闲置时，I/O密集型进程也在等待）</li>
+</ul>
+<p>三、短任务优先算法</p>
+<figure data-type="image" tabindex="107"><img src="https://memorykki.github.io/post-images/os-interview/82.png" alt="" loading="lazy"></figure>
+<p>当一个更短时间进程来了之后，有两种策略：</p>
+<ul>
+<li>不理，将这个时间更短的程序排在前面，但是继续执行本来在执行的进程，这种是非抢占性的。（SPN）</li>
+<li>将这个时间更短的程序与正在执行的程序剩余所需要执行的时间进行比较，如果跟多，这打断正在执行的程序，这种是可抢占的。（SRT）</li>
+</ul>
+<p>优点：<br>
+平均等待时间最短</p>
+<figure data-type="image" tabindex="108"><img src="https://memorykki.github.io/post-images/os-interview/83.png" alt="" loading="lazy"></figure>
+<p>缺点：</p>
+<ul>
+<li>可能导致饥饿</li>
+</ul>
+<p>连续的短任务流会使长任务饥饿<br>
+短时间可用时的任何长任务的CPU时间都会增加平均等待时间</p>
+<ul>
+<li>需要预知未来</li>
+</ul>
+<p>怎么预估下一个CPU突发的持续时间<br>
+简单的解决方法：询问用户<br>
+如果用户欺骗就杀死进程<br>
+如果用户不知道就采用预估方法<br>
+根据过去，预测未来，大致的预测方法如下：</p>
+<figure data-type="image" tabindex="109"><img src="https://memorykki.github.io/post-images/os-interview/84.png" alt="" loading="lazy"></figure>
+<p>结果大致的相同</p>
+<figure data-type="image" tabindex="110"><img src="https://memorykki.github.io/post-images/os-interview/85.png" alt="" loading="lazy"></figure>
+<p>四、最高响应比优先算法<br>
+在SPN调度的基础上改进</p>
+<figure data-type="image" tabindex="111"><img src="https://memorykki.github.io/post-images/os-interview/86.png" alt="" loading="lazy"></figure>
+<p>R值越高表示等待的时间越长，就会优先的调度这种进程。</p>
+<p>优点：<br>
+充分的考虑到了进程的等待时间，所有之前的饥饿现象会得到有效的化解。</p>
+<p>缺点：</p>
+<ul>
+<li>不可抢占</li>
+<li>依然需要知道执行的时间是多长，所以还是要预估</li>
+</ul>
+<p>五、轮循算法<br>
+各个cpu轮流占用cpu去执行，在叫做量子(或时间切片)的离散单元中分配处理器，时间片结束后，切换到下一个准备好的进程。</p>
+<figure data-type="image" tabindex="112"><img src="https://memorykki.github.io/post-images/os-interview/87.png" alt="" loading="lazy"></figure>
+<p>每一个进程都有机会去被cpu执行</p>
+<p>例子：</p>
+<figure data-type="image" tabindex="113"><img src="https://memorykki.github.io/post-images/os-interview/88.png" alt="" loading="lazy"></figure>
+<p>可见，轮流算法的平均等待时间是比较大的。</p>
+<p>特点：</p>
+<ul>
+<li>会比较到的切换时间，进程上下文的切换，确保公平</li>
+<li>时间片太大（有可能退化为先来先服务）</li>
+</ul>
+<p>等待时间过长<br>
+极限情况退化成FCFS</p>
+<ul>
+<li>时间片太小（切换过于频繁）</li>
+</ul>
+<p>吞吐量由于大量的上下文切换开销收到影响<br>
+目标：</p>
+<p>选择一个合适的时间量子<br>
+经验规则：维持上下文切换开销处于1%以内，这样的情况下99%的时间都是在<br>
+进程的执行过程中</p>
+<p>与先来先服务算法 进行比较：</p>
+<figure data-type="image" tabindex="114"><img src="https://memorykki.github.io/post-images/os-interview/89.png" alt="" loading="lazy"></figure>
+<p>六、多级反馈队列<br>
+首先完成高优先级的进程，待其完成了所以的任务之后，再去完成第优先级的进程，这样通过分层不同级别的队列，可以实现调度的区分，使得调度的策略更加的合适。<br>
+而且进程在不同阶段的特点是不同的，所以调度算法可以考虑到进程各阶段的特点来调整其在队列中的级别。这个就是多级反馈队列可以体现。</p>
+<figure data-type="image" tabindex="115"><img src="https://memorykki.github.io/post-images/os-interview/810.png" alt="" loading="lazy"></figure>
+<p>特点：</p>
+<ul>
+<li>时间量子大小随优先级级别增加而增加</li>
+<li>如果任务在当前的时间量子中没有完成，则降到下一个优先级</li>
+<li>能够区分进程在动态执行过程中动态的调整进程优先级，使得IO密集型的任务可以很快的执行，而CPU密集型的任务放在优先级较低位置。</li>
+</ul>
+<figure data-type="image" tabindex="116"><img src="https://memorykki.github.io/post-images/os-interview/811.png" alt="" loading="lazy"></figure>
+<p>七、公平共享调度<br>
+FFS控制用户对系统资源的访问</p>
+<p>一些用户组比其他组更重要<br>
+保证不重要的组无法垄断资源<br>
+未使用的资源按照每个组所分配的资源比例来分配<br>
+没有达到资源使用率目标的组获得更高的优先级</p>
+<p>八、小结</p>
+<ul>
+<li>FCFS先来先服务</li>
+</ul>
+<p>不公平，平均等待时间较差</p>
+<ul>
+<li>SPN/SRT段进程优先</li>
+</ul>
+<p>不公平，但是平均等待时间最小<br>
+需要精确预测计算时间<br>
+可能导致饥饿</p>
+<ul>
+<li>HRRN最好响应比优先</li>
+</ul>
+<p>基于SPN调度改进（考虑了等待时间）<br>
+不可抢占</p>
+<ul>
+<li>Round Robin轮循</li>
+</ul>
+<p>公平，但是平均等待时间较差<br>
+每一个进程有固定的时间片，但是上下文开销较大</p>
+<ul>
+<li>MLFQ舵机反馈对列</li>
+</ul>
+<p>和SPN类似<br>
+动态调整进程优先级</p>
+<ul>
+<li>公平共享调度</li>
+</ul>
+<p>公平是第一要素</p>
+<h2 id="84-实时调度">8.4. 实时调度</h2>
+<p>面向的是实时的系统，更多的是工业控制（火车，机床等等）<br>
+1、定义<br>
+正确性依赖于其时间和功能两个方面的一种操作系统</p>
+<p>2、性能指标</p>
+<ul>
+<li>时间约束的及时性（deadlines）</li>
+<li>速度和平均性能相对不重要</li>
+</ul>
+<p>3、主要特征<br>
+时间约束的可预测性</p>
+<p>4、分类</p>
+<ul>
+<li>强实时系统<br>
+需要在保证的时间内完成重要的任务，必须完成</li>
+<li>弱实时系统<br>
+要求重要的进程的优先级更高，尽量完成，并非必须</li>
+</ul>
+<figure data-type="image" tabindex="117"><img src="https://memorykki.github.io/post-images/os-interview/812.png" alt="" loading="lazy"></figure>
+<p>Released ：让进程处于就绪态的时间<br>
+Execution time：执行时间<br>
+Absolute deadline：绝对的截止时间，任务的执行不可以操作这个时间<br>
+Relative deadline：相对截止时间，因为任务是间隔的，一段时间完成一个任务</p>
+<figure data-type="image" tabindex="118"><img src="https://memorykki.github.io/post-images/os-interview/813.png" alt="" loading="lazy"></figure>
+<p>（周期是5，执行的时间就是蓝色的区域）</p>
+<p>5、特点<br>
+硬时限：</p>
+<p>如果错过了最后的期限，可能会发生灾难性或非常严重的后果<br>
+必须验证：在最坏的情况下也能够满足时限<br>
+保证确定性<br>
+软时限：</p>
+<p>理想情况下，时限应该被最大满足。如果有时限没有被满足，那么就相应地降低要求<br>
+尽量大努力去保证<br>
+表示一个实时系统是否能够满足deadline要求</p>
+<p>决定实时任务执行的顺序<br>
+静态优先级调度<br>
+动态优先级调度<br>
+6、实时系统中的两类调度算法：</p>
+<ul>
+<li>RM（Rate Monotonic）速率单调调度</li>
+</ul>
+<p>最接静态优先级调度<br>
+通过周期安排优先级<br>
+周期越短优先级越高<br>
+执行周期最短的任务</p>
+<ul>
+<li>EDF（Earliest Deadline First）最早期限调度</li>
+</ul>
+<p>最佳的动态优先级调度<br>
+Deadline越早优先级越高<br>
+执行Deadline最早的任务<br>
+8.5多处理器调度与优先级反转<br>
+一、多处理器调度<br>
+1、多处理器的cpu调度更加复杂</p>
+<p>多个相同的单处理器组成一个多处理器<br>
+负载平衡状态<br>
+2、对称多处理器（SMP）</p>
+<p>每个处理器运行自己的调度程序<br>
+需要在调度程序中同步</p>
+<figure data-type="image" tabindex="119"><img src="https://memorykki.github.io/post-images/os-interview/814.png" alt="" loading="lazy"></figure>
+<p>二、优先级反转<br>
+出现的原因：<br>
+T1的执行时间受制于T2的执行时间，因为T2抢占了T3的cpu时间去执行，而T1的执行有必须等待T3处理完共享内容，所以T1的执行时间被T2延长了。从而导致T1不能及时的完成其任务，导致系统处于不稳定状态而重启。</p>
+<figure data-type="image" tabindex="120"><img src="https://memorykki.github.io/post-images/os-interview/815.png" alt="" loading="lazy"></figure>
+<p>特点：<br>
+可以发生在任何基于优先级的可抢占的调度机制中。<br>
+当系统内的环境强制性使高优先级任务等待低优先级任务时发生。</p>
+<p>解决方法：<br>
+1、优先级继承（将问题发生时，提升T3的优先级）<br>
+低优先级继承高优先级任务的优先级依赖于他们共享的资源</p>
+<figure data-type="image" tabindex="121"><img src="https://memorykki.github.io/post-images/os-interview/816.png" alt="" loading="lazy"></figure>
+<p>2、天花板优先级</p>
+<ul>
+<li>“资源”的优先级和“所有可以锁定该资源的任务中优先级最高的那个任务”的优先级相同。</li>
+<li>除非优先级高于系统中所有被锁定的资源的优先级上限，否则任务尝试执行临界区的时候会被阻塞</li>
+<li>持有最高优先级上限信号量锁的任务，会继承被该锁所阻塞的任务的优先级</li>
+</ul>
+<h1 id="9-同步互斥问题">9. 同步互斥问题</h1>
+<h2 id="91-背景知识">9.1. 背景知识</h2>
+<p>1、如果资源处理不当，可能会出现一些意想不到的情况，合作的风险<br>
+独立的线程：</p>
+<p>不和其他线程共享资源或状态<br>
+确定性-&gt;输入状态决定结果<br>
+可重现-&gt;能够重现起始条件<br>
+调度顺序不重要<br>
+合作线程：</p>
+<p>在多喝线程中共享状态<br>
+不确定性<br>
+不可重现（不可重复性）<br>
+这些不确定性和不可重复以意味着bug可能是间歇性发生的，也就是合作是有风险的。</p>
+<p>2、为什么要合作</p>
+<ul>
+<li>共享资源<br>
+资源是需要共享的，因为进程可能要访问同一个文件。</li>
+<li>加速<br>
+通过并行和并发，可以提高系统的效率，实现更有效的资源的利用。相当于把一个大的任务，拆分成多个小的任务，每个任务通过并行的执行提高系统的性能。</li>
+<li>模块化<br>
+在设计时将一个大的工作，变成一个小的工作，使之具有模块化，使系统便于扩展。</li>
+</ul>
+<p>3、问题出现的原因<br>
+例子：</p>
+<figure data-type="image" tabindex="122"><img src="https://memorykki.github.io/post-images/os-interview/91.png" alt="" loading="lazy"></figure>
+<p>以上四条汇编指令的意思是：</p>
+<ul>
+<li>把next_pid赋值给寄存器1（Reg1）</li>
+<li>再把这个寄存器1存到了new_pid这个内存单元的去。此时new_pid就具有了next_pid这个值。</li>
+<li>寄存器1加一操作。</li>
+<li>完成next_pid的值增加了一个1的操作。<br>
+总的实现过程：<br>
+先把new_pid = next_pid，然后next_pid再加1.</li>
+</ul>
+<p>但是，如果这时有两个进程，就会出现意想不到的情况：</p>
+<figure data-type="image" tabindex="123"><img src="https://memorykki.github.io/post-images/os-interview/92.png" alt="" loading="lazy"></figure>
+<p>问题产生的原因：<br>
+在第二次进程的上下文切换时候，进程1的寄存器恢复之后依然100的值，是的next的值无法更新称为102。最终产生了切换使得最终的结果不是想要的结果。这是一种典型的异常现象。</p>
+<h2 id="92-一些概念part1">9.2. 一些概念part1</h2>
+<p>由于上述产生的异常现象（称之为竞态条件Race Condition），这就是为什么要引入同步互斥这些机制的原因，就是要解决这种不确定性的问题。</p>
+<p>1、系统缺陷：结果依赖于并发执行或者事件的顺序/时间<br>
+不确定性<br>
+不可重现</p>
+<p>2、怎样避免竞态？<br>
+让指令不被打断（比如上述的四条机器指令不被打断）</p>
+<p>3、不被打断的方法：原子操作（Atomic Operation）—不可被打断操作<br>
+原子操作是指一次不存在任何中断或者失败的执行</p>
+<p>该执行成功结束<br>
+或者根本没有执行<br>
+并且不应该发现任何部分执行的状态<br>
+实际上操作往往不是原子的</p>
+<p>有些看上去是原子操作，实际不是<br>
+连x++这样简单的语句，实际上是由3条指令造成的<br>
+有时候甚至连条单条机器指令都不是原子的<br>
+例子：</p>
+<figure data-type="image" tabindex="124"><img src="https://memorykki.github.io/post-images/os-interview/93.png" alt="" loading="lazy"></figure>
+<p>所以需要后续的同步机制，确保或者是A赢或者是B赢。</p>
+<p>4、一些基本概念</p>
+<p>临界区（Critical section）<br>
+临界区是指进程中的一段需要访问共享资源并且当另一个进程处于相应代码区域时便不会被执行的代码区域。简单来说，就是访问共享资源的那段代码就是临界区。</p>
+<p>互斥（Mutual exclusion）<br>
+当一个进程处于临界区并访问共享资源时，没有其他进程会处于临界区并且访问任何相同的共享资源。</p>
+<p>死锁（Dead lock）<br>
+两个或以上的进程，在互相等待完成特定任务，而最终没法将自身任务进行下去。</p>
+<p>饥饿（Starvation）<br>
+一个可执行的进程，被调度器持续忽略，以至于虽然处于可执行状态却不被执行</p>
+<h2 id="93-一些概念part2">9.3. 一些概念part2</h2>
+<p>1、一个有趣的类比：</p>
+<figure data-type="image" tabindex="125"><img src="https://memorykki.github.io/post-images/os-interview/94.png" alt="" loading="lazy"></figure>
+<p>2、解决的方法和概念</p>
+<figure data-type="image" tabindex="126"><img src="https://memorykki.github.io/post-images/os-interview/95.png" alt="" loading="lazy"></figure>
+<p>3、更好的解决方法（轻量级）</p>
+<figure data-type="image" tabindex="127"><img src="https://memorykki.github.io/post-images/os-interview/96.png" alt="" loading="lazy"></figure>
+<p>但是由于进程上下文切换的原因，问题还是会存在。</p>
+<figure data-type="image" tabindex="128"><img src="https://memorykki.github.io/post-images/os-interview/97.png" alt="" loading="lazy"></figure>
+<p>如果只是将Note往前面提简单的挪动一下还是不会解决问题，变成谁都不会去买面包了。</p>
+<figure data-type="image" tabindex="129"><img src="https://memorykki.github.io/post-images/os-interview/98.png" alt="" loading="lazy"></figure>
+<h2 id="94-一些概念part3">9.4. 一些概念part3</h2>
+<p>1、再换一个方法</p>
+<figure data-type="image" tabindex="130"><img src="https://memorykki.github.io/post-images/os-interview/99.png" alt="" loading="lazy"></figure>
+<p>结果还是有问题的。</p>
+<figure data-type="image" tabindex="131"><img src="https://memorykki.github.io/post-images/os-interview/910.png" alt="" loading="lazy"></figure>
+<p>需要确保在任何情况下，只有一个进程在临界区中执行，其他的进程需要在外面等待。</p>
+<p>一个更加合理的方案解析过程：</p>
+<figure data-type="image" tabindex="132"><img src="https://memorykki.github.io/post-images/os-interview/911.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="133"><img src="https://memorykki.github.io/post-images/os-interview/912.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="134"><img src="https://memorykki.github.io/post-images/os-interview/913.png" alt="" loading="lazy"></figure>
+<p>程序是有效的，但是导致代码不一样了。</p>
+<p>最终的解决方案：<br>
+为每一个线程保护了一段“临界区”代码。使用临界区的思想，问题就可以较好的解决。其是讲前诉方法的一个抽象。<br>
+有了临界区的代码之后，就可以确保任何时候只有一个进程在临界区中执行，切其他进程在外面等待，知道临界区中的进程离开，其他进程中的一个会进入临界区去执行。这个是比较合理的一个实现。</p>
+<h2 id="95-临界区">9.5. 临界区</h2>
+<p>在临界区中执行所拥有的属性：<br>
+1、互斥：同一个时间临界区中最多存在一个线程<br>
+2、前进（Progress）：如果一个线程想要进入临界区，那么它最终会成功，不会一直的死等。<br>
+3、有限等待：如果一个线程i处于入口区，那么在i的请求被接受之前，其他线程进入临界区的时间是有限制的。如果是无限等待，就会出现饥饿状态，是Progress前进状态的一种进一步补充。<br>
+4、忙等（可选属性）：如果一个进程在等待进入临界区，那么在它可以进入之前会被挂起。</p>
+<p>基于这些属性，设计一些方法对临界区进行保护：<br>
+方法一：禁用硬件中断<br>
+方法二：基于软件的解决方法<br>
+方法三：更高级的抽象（基于硬件原子操作的指令）</p>
+<h2 id="96-禁用硬件中断">9.6. 禁用硬件中断</h2>
+<p>一、基本实现<br>
+没有中断，也就是没有了上下文切换，因此没有并发。</p>
+<p>硬件将中断处理延迟到中断被启用之后<br>
+大多数现代计算机体系结构都提供指令来完成<br>
+进入临界区时禁用中断，离开临界区时开启中断。这个方法是可以解决问题的。</p>
+<p>二、缺点<br>
+1、一旦中断被禁用，线程就无法被停止</p>
+<ul>
+<li>整个系统都会为你停下来</li>
+<li>可能导致其他线程处于饥饿状态</li>
+</ul>
+<p>2、要是临界区可以任意长<br>
+无法限制响应中断所需的时间（可能存在硬件影响）</p>
+<p>需要注意：<br>
+执行这种课屏蔽中断的指令，只是把自身的响应中断的能力屏蔽了，并不意味着也将其他cpu的响应中断能力屏蔽，所以其实其他的cpu还是可以继续产生中断，所以在多cpu的情况下是无法解决互斥问题的。</p>
+<h2 id="97-基于软件的解决方案">9.7. 基于软件的解决方案</h2>
+<p>一、思考方案<br>
+1、思考方案一：<br>
+某一个进程，它想进入临界区，其有一个顺序（次序），根据这个次序决定谁会进入这个临界区。</p>
+<p>方法如下所示：</p>
+<figure data-type="image" tabindex="135"><img src="https://memorykki.github.io/post-images/os-interview/915.png" alt="" loading="lazy"></figure>
+<p>假设这个线程的次序是0，那么当turn=0时，才去继续下面的执行临界区代码，否者在while循环中一直打转。条件满足时，改变使得turn=1。<br>
+而进程1的代码也是类似的，只是while循环中的判断条件是不等于0，下面的turn=0.</p>
+<p>这个程序的弊端是：<br>
+必须进程1执行一次临界区，进程0执行一次临界区，然后两个交替执行，才能保证两继续的执行。一旦其中的一个进程不愿意再做这个事情，那按照之前的属性，其他进程先进去就应该能够进去，但是在这种模式下，就无法完成这个前进的属性。</p>
+<p>2、思考方案二：<br>
+前面表示了一个turn是不够表示，所以接下来使用一个小数组flag[2]来表示这个进程是否想进入临界区。</p>
+<p>flag[0] = 1 //表示进程0想进入临界区执行<br>
+flag[0] = 1 //表示进程1想进入临界区执行<br>
+方法1如下所示：</p>
+<figure data-type="image" tabindex="136"><img src="https://memorykki.github.io/post-images/os-interview/916.png" alt="" loading="lazy"></figure>
+<p>但是这个代码是有问题的，不能满足互斥这个属性。<br>
+因为在初始的时候，两个进程都不会想进入临界区，所以两个flag都会赋值为0，表面没有这个需求。这样就是的两个进程都会跳出这个循环，然后都会将直接复制为，想要进入临界区，也就出现了多买面包的想象。</p>
+<p>方法2如下所示：</p>
+<figure data-type="image" tabindex="137"><img src="https://memorykki.github.io/post-images/os-interview/917.png" alt="" loading="lazy"></figure>
+<p>满足了互斥，但是倘若两个线程都赋值了1，出现上下文切换的时候，都无法跳出这个循环，也就是出现是死锁的情况。</p>
+<p>可见，互斥的解决并没有想象的那么简单~~~</p>
+<p>二、正确实现<br>
+1、正确的接法<br>
+将以上的两种思考都综合起来使用。三个变量共同的作用。</p>
+<figure data-type="image" tabindex="138"><img src="https://memorykki.github.io/post-images/os-interview/918.png" alt="" loading="lazy"></figure>
+<p>算法如下：</p>
+<figure data-type="image" tabindex="139"><img src="https://memorykki.github.io/post-images/os-interview/919.png" alt="" loading="lazy"></figure>
+<p>该算法可以满足互斥，前进和有限等待三个属性。<br>
+反证法来证明：<br>
+假定，现在两个进程都进入了临界区，都在执行临界区代码，但是turn只是一个值的，所以总会有一个线程会跳出循环的。</p>
+<p>2、另外一种算法<br>
+所需的变量空间相同，但是更加的复杂</p>
+<figure data-type="image" tabindex="140"><img src="https://memorykki.github.io/post-images/os-interview/920.png" alt="" loading="lazy"></figure>
+<p>三、拓展<br>
+1、n进程解决方法1 （E&amp;M算法）<br>
+除了了针对两个进程之外，还可以拓展到n个进程如何保证互斥。</p>
+<figure data-type="image" tabindex="141"><img src="https://memorykki.github.io/post-images/os-interview/921.png" alt="" loading="lazy"></figure>
+<p>大致的思路：<br>
+对于进程i而言，对于其前面的进程而言，如果有进程想进入临界区，或者已经进入了临界区，那么i进程就必须等待。而对于i进程后面的进程，必须要等待i进程执行之后在进入临界区。这样就可以通过一个循环的方式完成n个进程有序的进入临界区。</p>
+<p>2、n进程解决方法2（Bakery算法）<br>
+大致思路如下：</p>
+<figure data-type="image" tabindex="142"><img src="https://memorykki.github.io/post-images/os-interview/922.png" alt="" loading="lazy"></figure>
+<p>四、总结</p>
+<ul>
+<li>即使是针对两个进程的解决竞态的实现还是比较复杂的。</li>
+<li>需要忙等待，浪费cpu时间。</li>
+<li>没有硬件包装的情况下无真正的软件解决方案。对硬件的1需求比较低（只需要load操作和store是原子操作即可）</li>
+</ul>
+<h2 id="98-更高级的抽象-基于原子操作">9.8. 更高级的抽象 — 基于原子操作</h2>
+<p>软件的处理比较复杂有没有更加简单的实现方法？<br>
+一、基础</p>
+<figure data-type="image" tabindex="143"><img src="https://memorykki.github.io/post-images/os-interview/923.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="144"><img src="https://memorykki.github.io/post-images/os-interview/924.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="145"><img src="https://memorykki.github.io/post-images/os-interview/925.png" alt="" loading="lazy"></figure>
+<p>使用了一些特殊的操作：<br>
+1、Test-and-Set测试和置位<br>
+（一条机器指令，但是完成了读写操作两条指令的功能）<br>
+从内存中读取值<br>
+测试该值是否为1（然后返回真或假）<br>
+内存值设置为1</p>
+<p>2、交换<br>
+（交换内存中的两个值）</p>
+<p>只要计算机系统提供了这两条的其中一条指令就可以很容易的完成互斥的问题。</p>
+<p>二、解决的方法<br>
+1、Test-and-Set方式</p>
+<figure data-type="image" tabindex="146"><img src="https://memorykki.github.io/post-images/os-interview/926.png" alt="" loading="lazy"></figure>
+<p>解决忙等的情况：先让其睡眠，在加一步唤醒操作</p>
+<figure data-type="image" tabindex="147"><img src="https://memorykki.github.io/post-images/os-interview/927.png" alt="" loading="lazy"></figure>
+<p>两者的区别：</p>
+<p>忙等：不需要上下文切换，但是利用率低，适用与临界区执行时间短的情况。<br>
+不忙等：需要上下文切换，上下文切换开销比较大大，适用于临界区很长，远远大于上下文切换所需要的开销。<br>
+2、交换的方式</p>
+<figure data-type="image" tabindex="148"><img src="https://memorykki.github.io/post-images/os-interview/928.png" alt="" loading="lazy"></figure>
+<p>解析：<br>
+1)当一个进程想要进入临界区的时候，key=1，而且lock的初始值是0，所以当执行到while循环的时候，由于执行了交换，交换执行的过程不会被打断进行上下文切换的操作，而后lock的变成了1，而key变成了0.所以会退出循环，执行临界区的代码。<br>
+2)需要注意的是，当进入临界区的时候，load已经是1，当其他进程进入临界区执行的时候，load是1，而key也是1，交换之后还是1，一直会循环的等待，进入不了临界区。知道进入临界区的进程，退出临界区之后，完成一个将load变成0的操作。其他等待的进程才会继续执行exchange。</p>
+<p>三、采用这种原子操作的特点<br>
+1、优点</p>
+<ul>
+<li>简单并且容易证明</li>
+<li>适用于单处理器或者共享主存的多处理器中任意数量的进程</li>
+<li>可以很容易拓展n个进程，可以用于支持多临界区</li>
+<li>开销比较小</li>
+</ul>
+<p>2、缺点</p>
+<ul>
+<li>忙等待消耗处理器时间</li>
+<li>当进程离开临界区并且多个进程在等待的时候可能导致饥饿现象</li>
+<li>出现死锁的情况（例子：如果一个低优先级的进程拥有临界区并且一个高优先级进程也需求，那么高优先级进程会获得处理器并且等待临界区 — 需要用优先级反转的方式进行处理）</li>
+</ul>
+<p>四、总结<br>
+1、锁是更高级的编程抽象</p>
+<p>互斥可以使用锁来实现<br>
+通常需要一定等级的硬件支持<br>
+2、常用的三种实现方法</p>
+<p>禁用中断（仅限于单处理器）<br>
+软件方法（复杂）<br>
+原子操作指令（但处理器或多处理器均可）—更常用<br>
+3、可选的实现内容</p>
+<p>有忙等待<br>
+无忙等待</p>
+<h1 id="10-信号量与管程">10. 信号量与管程</h1>
+<h2 id="101-背景">10.1. 背景</h2>
+<p>利用信号量和管程解决同步互斥的问题</p>
+<p>1、并发问题：竞争条件（竞态条件）</p>
+<p>多程序并发存在大的问题<br>
+2、同步</p>
+<ul>
+<li>线程共享公共数据的协调条件</li>
+<li>包括互斥与条件同步</li>
+<li>互斥：在同一时间只有一个线程可以执行临界区</li>
+</ul>
+<p>3、解决同步问题正确比较难</p>
+<ul>
+<li>需要高层次的编程抽象（如：锁）</li>
+<li>从底层硬件支持编译</li>
+</ul>
+<p>解决的过程图如下所示：</p>
+<figure data-type="image" tabindex="149"><img src="https://memorykki.github.io/post-images/os-interview/101.png" alt="" loading="lazy"></figure>
+<h2 id="102-信号量">10.2. 信号量</h2>
+<p>（与信号灯有类似之处）<br>
+1、抽象数据类型</p>
+<ul>
+<li>一个整形（sem），两个原子操作</li>
+<li>p操作：sem减一</li>
+</ul>
+<p>如果信号量sem&lt;0，认为执行p操作的进程需要睡眠<br>
+如果信号量sem&gt;0，认为执行p操作的进程可以继续执行，可以进入临界区<br>
+如果挡住了，就不能执行后续的程序，起到了一个阻挡的作用。</p>
+<ul>
+<li>v操作：sem加一</li>
+</ul>
+<p>如果信号量sem&lt;=0，认为当前的进程等待在这一个信号量上面，然后会唤醒这个进程（一个或多个）<br>
+2、信号量的图解机制</p>
+<figure data-type="image" tabindex="150"><img src="https://memorykki.github.io/post-images/os-interview/102.png" alt="" loading="lazy"></figure>
+<p>如果再来一个列车，信号量就不够了，直到一个列车离开了这个临界区之后，会执行一个v操作，而进入临界区之前会执行一个p操作。</p>
+<figure data-type="image" tabindex="151"><img src="https://memorykki.github.io/post-images/os-interview/103.png" alt="" loading="lazy"></figure>
+<p>离开这个临界区执行v操作之后，这个进程将道空出来之后，还会通知等待的列车去执行</p>
+<figure data-type="image" tabindex="152"><img src="https://memorykki.github.io/post-images/os-interview/104.png" alt="" loading="lazy"></figure>
+<p>3、由来</p>
+<figure data-type="image" tabindex="153"><img src="https://memorykki.github.io/post-images/os-interview/105.png" alt="" loading="lazy"></figure>
+<h2 id="103-信号量的使用">10.3. 信号量的使用</h2>
+<p>一、基础<br>
+1、属性</p>
+<ul>
+<li>
+<p>信号量是整数（有符号数）<br>
+一开始通常会设定为一个大于0的数，所以一开始执行p操作不会被阻塞。但是多次执行p操作之后，执行p操作的进程就会等待在上面。这时需要起床进程执行v操作，然后唤醒等在这个上面的进程。（如果只能唤醒一个进程，一般是唤醒第一个等待的进程，FIFO对列）</p>
+</li>
+<li>
+<p>信号量是被保护的变量</p>
+</li>
+</ul>
+<p>初始化完成后，唯一改变一个信号量的值的办法是通过p操作或者是v操作<br>
+操作必须是原子</p>
+<ul>
+<li>
+<p>p操作（信号量减一操作）能够阻塞，v操作（信号量加一操作）不会阻塞</p>
+</li>
+<li>
+<p>假定信号量是公平的</p>
+</li>
+</ul>
+<p>没有线程被阻塞在p操作仍然阻塞如果v操作被无限频繁地调用（在同一个信号量）<br>
+在实践中，FIFO经常被使用<br>
+2、两种类型信号量</p>
+<ul>
+<li>二进制信号量：可以是0或1（与前面的lock达到同样的效果）</li>
+<li>一般/计数信号量：可取任何非负值</li>
+<li>两者互相表现（给定一个可以实现另一个）</li>
+</ul>
+<p>3、信号量可以用在两个方面</p>
+<ul>
+<li>互斥</li>
+<li>条件同步（调度约束–一个线程等待另一个线程的事件发生）</li>
+</ul>
+<p>二、信号量的使用<br>
+1、思想介绍</p>
+<ul>
+<li>用二进制信号量实现的互斥</li>
+</ul>
+<figure data-type="image" tabindex="154"><img src="https://memorykki.github.io/post-images/os-interview/106.png" alt="" loading="lazy"></figure>
+<p>解析：<br>
+一开始要设置一个初始值，为了模仿lock操作，实质了初始值为1。然后在临界区之前，作一个信号量的p操作，在临界区执行之后，作一个信号量的v操作。这个就是二进制信号量的最常用法，完全可以代替前面的lock操作。</p>
+<ul>
+<li>用二进制信号量完成同步操作</li>
+</ul>
+<figure data-type="image" tabindex="155"><img src="https://memorykki.github.io/post-images/os-interview/107.png" alt="" loading="lazy"></figure>
+<ul>
+<li>其他复杂的问题<br>
+一个线程等待另一个线程处理事情<br>
+比如生产东西或消费东西<br>
+互斥（锁机制）是不够的</li>
+</ul>
+<figure data-type="image" tabindex="156"><img src="https://memorykki.github.io/post-images/os-interview/108.png" alt="" loading="lazy"></figure>
+<p>2、正确性要求：</p>
+<ul>
+<li>buffer是有限的</li>
+<li>任何一个时间只能有一个线程操作缓冲区（互斥）<br>
+允许一个或多个生产者往buffer中写数据，但是这时候不允许消费者读数据<br>
+允许一个或多个消费者往buffer中读数据，但是这时候不允许生产者写数据</li>
+<li>当缓冲区为空时，消费者要休眠，消费者必须等待生产者（调度/同步约束）</li>
+<li>当缓冲区已满时，生产者必须等待消费者（调度/同步约束）</li>
+</ul>
+<p>3、使用分析<br>
+每个约束用一个单独的信号量</p>
+<ul>
+<li>二进制信号量互斥</li>
+</ul>
+<p>对buffer做添加或者取出的保障</p>
+<ul>
+<li>一般信号量fullBuffers</li>
+</ul>
+<p>代表一开始buffer的数据多少，如果为0，则表示一开始的buffer是空的</p>
+<ul>
+<li>一般信号量emptyBuffers</li>
+</ul>
+<p>代表当前生产者可以往这个buffer塞多少个数据<br>
+以上两个技术信号量用于同步操作，当buffer还有空间时，应唤醒生产者继续生产。</p>
+<p>4、代码操作</p>
+<ul>
+<li>数据可初始化如下：</li>
+</ul>
+<figure data-type="image" tabindex="157"><img src="https://memorykki.github.io/post-images/os-interview/109.png" alt="" loading="lazy"></figure>
+<ul>
+<li>生产者的操作：</li>
+</ul>
+<figure data-type="image" tabindex="158"><img src="https://memorykki.github.io/post-images/os-interview/1010.png" alt="" loading="lazy"></figure>
+<p>调用这个函数实现生产者不停的添加数据</p>
+<ul>
+<li>
+<p>消费者的操作：<br>
+调用这个函数实现消费者不停的取出数据</p>
+</li>
+<li>
+<p>解决互斥同步总实现代码分析</p>
+</li>
+</ul>
+<figure data-type="image" tabindex="159"><img src="https://memorykki.github.io/post-images/os-interview/1011.png" alt="" loading="lazy"></figure>
+<p>解析：</p>
+<ul>
+<li>对于生产者来说，由于一开始的buffer设置允许塞进的数据是n，所以生产者可以往下执行。进行buffer的生产操作。</li>
+<li>但是在生产之前，需要对mutex进程减操作，使之为0。。生产操作完成之后，将mutex加1操作。这次就保证了buffer的互斥问题，确保之间只有一个线程可以执行。两个操作确保了add buffer是一个互斥的操作，确保互斥性。</li>
+<li>互斥操作完成之后，在将fullbuffer进行一个v操作，加1，提醒生产者可以正常的消费。</li>
+<li>而对消费者来说，fullbuffer一开始初始值为0，所以是没有数据的。消费者不可能取到数据，所以在等待。所以刚刚生产者唤醒了消费者，和生产者fullbuffer的v操作相匹配。而后进行互斥的取数据操作</li>
+<li>取出数据之后，会将emptybuffer进行v操作，表示唤醒生产者可以继续生产，也就是生产的进程可以继续执行。</li>
+</ul>
+<p>以上就运用了互斥机制和同步机制来实现了一个完成的消费者和生产者的问题。需要注意好初值的确定。</p>
+<p>问题：p，v操作的顺序有影响吗？<br>
+v操作是加一操作，所以没有影响<br>
+p操作是减一操作，会导致阻塞，所以会产生严重的影响，比如死锁的情况</p>
+<h2 id="104-信号量的实现">10.4. 信号量的实现</h2>
+<p>不仅要会用信号量，还需要知道信号量使用的细节<br>
+1、伪代码实现</p>
+<figure data-type="image" tabindex="160"><img src="https://memorykki.github.io/post-images/os-interview/1012.png" alt="" loading="lazy"></figure>
+<p>2、需要注意的问题</p>
+<ul>
+<li>信号量的双用途</li>
+</ul>
+<p>互斥和条件同步<br>
+但等待条件是独立的互斥</p>
+<ul>
+<li>读/开发代码比较困难</li>
+</ul>
+<p>程序员必须非常精彩信号量</p>
+<ul>
+<li>容易出错</li>
+</ul>
+<p>使用的信号量已经被另一个线程占用<br>
+忘记释放信号量</p>
+<ul>
+<li>不能处理死锁问题</li>
+</ul>
+<h2 id="105-管程">10.5. 管程</h2>
+<p>管程的抽象程度更高，更加容易的来完成相应的同步互斥的问题。<br>
+一、基础<br>
+1、目的：分离互斥和条件同步的关注<br>
+（一开始是完成编程语言的设计，而不是操作系统的设计的，所以其整体上是针对语言的并发机制来完成的）</p>
+<p>2、什么是管程（moniter）<br>
+管程是包含了一系列的共享变量以及针对这些这些变量函数的一个组合或模块。其包括：</p>
+<p>一个锁：指定临界区（确保互斥性，只能有一个线程）<br>
+0或者多个条件变量：等待/通知信号量用于管理并发访问共享数据<br>
+3、一般方法</p>
+<p>收集在对象/模块中的相关共享数据<br>
+定义方法来访问共享数据<br>
+大致的结构图：</p>
+<figure data-type="image" tabindex="161"><img src="https://memorykki.github.io/post-images/os-interview/1013.png" alt="" loading="lazy"></figure>
+<p>一开始，所有进程在右上角的排队队列中，排队完后进行wait()操作，等到signal()操作唤醒后，执行这个进程的代码。</p>
+<p>分析：</p>
+<figure data-type="image" tabindex="162"><img src="https://memorykki.github.io/post-images/os-interview/1014.png" alt="" loading="lazy"></figure>
+<p>实现：</p>
+<figure data-type="image" tabindex="163"><img src="https://memorykki.github.io/post-images/os-interview/1015.png" alt="" loading="lazy"></figure>
+<p>解析：</p>
+<ul>
+<li>这里的numwaiting代表的是当前等待线程的个数，而之前的sem是代表信号量的个数。</li>
+<li>信号量的实现v操作和c操作是一定会执行的，也就是一定会执行加一操作或者是减一操作。</li>
+<li>而这里的wait操作是会做加操作，而signal里面，不一定要做减操作。</li>
+<li>这里在wait函数中，还没有require lock就要release（lock）的原因下面再进行讲解。</li>
+<li>release(lock)之后，会做一次schedule(),表示会选择下一次线程去执行，因为本身这个线程已经处于睡眠状态了。</li>
+<li>schedule()完毕再做一个require(lock)的操作，这里又是为什么？这里的release和require和之前的有所不同，下面讲解。</li>
+<li>signal函数是作唤醒的操作，从等待队列里面取出一个线程唤醒，与之前的schedule()是对应的。wakeup(t)是对schedule的进一步触动机制。最后waiting再进行减减操作。</li>
+<li>如果等待队列为0，则啥操作也不做这里的numwaiting代表的是当前等待线程的个数，而之前的sem是代表信号量的个数。</li>
+</ul>
+<p>二、使用<br>
+1、对管程进行初始化</p>
+<figure data-type="image" tabindex="164"><img src="https://memorykki.github.io/post-images/os-interview/1016.png" alt="" loading="lazy"></figure>
+<p>需要注意：</p>
+<ul>
+<li>lock变量是保证互斥的操作。</li>
+<li>condition条件变量，这里有两个条件变量，一个是buffer满，一个是buffer空，也就是</li>
+<li>count中记录了buffer中的空闲情况，count=0，表面buffer是空的，如果buffer是n，表面buffer是满的。</li>
+</ul>
+<p>2、互斥机制<br>
+生产者是Deposit()，消费者是Remove()。</p>
+<figure data-type="image" tabindex="165"><img src="https://memorykki.github.io/post-images/os-interview/1017.png" alt="" loading="lazy"></figure>
+<p>需要注意：</p>
+<ul>
+<li>这里不仅仅要对buffer做操作，响应的还要在count中记录下来。</li>
+<li>信号量互斥的实现是仅仅靠着这个buffer的，而这里的互斥是在函数的头和尾。</li>
+<li>buffer空了消费者会去睡眠，而buffer满了生产者会去睡眠。</li>
+</ul>
+<p>为什么？ -----这是管程的定义来决定的<br>
+·因为管程定义，进入管程的时候，只有一个线程可以进去，才能执行管程所管理的所以函数。而既然这图中的两个函数是属于管程管理的两个访问共享变量的函数，就要确保其互斥性和唯一性。所以一进入这个函数就是互斥的。</p>
+<p>3、同步机制</p>
+<ul>
+<li>生产者的buffer未满操作<br>
+如何实现：buffer空了消费者会去睡眠，而buffer满了生产者会去睡眠的过程？</li>
+</ul>
+<figure data-type="image" tabindex="166"><img src="https://memorykki.github.io/post-images/os-interview/1018.png" alt="" loading="lazy"></figure>
+<p>当buffer满的时候，也就是count=n，这时候会作一个 notfull.wait(&amp;lock)操作。notfull是一个条件变量，不需要有一个初始值。notfull.wait(&amp;lock)就表示当前已经满了，我需要睡眠，同时还带有一个lock。而这个lock就是管程的lock。</p>
+<ul>
+<li>小插曲<br>
+这时先解释前面的问题：为什么是先relase再require一个锁呢？</li>
+</ul>
+<figure data-type="image" tabindex="167"><img src="https://memorykki.github.io/post-images/os-interview/1019.png" alt="" loading="lazy"></figure>
+<p>解析：<br>
+release(lock)：实际上说让当前的生产者释放到这个锁，这使得其他的线程才有可能进入管程去执行。因为这时候生产者要休眠了，所以必须要把这把锁释放。而其释放是由于之前其有一个lock-&gt;Acquire(),已经获得了这个锁。所以在wait操作一定要释放，不然所以等待的线程都在等待，系统会停滞。<br>
+一旦将来被唤醒了，也意味着可以继续从schedule中继续往下执行，再去完成一次require(lock)。一旦获取了lock之后，就会跳出wait操作，看看count是否等于n。</p>
+<ul>
+<li>消费者的buffer未满操作</li>
+</ul>
+<figure data-type="image" tabindex="168"><img src="https://memorykki.github.io/post-images/os-interview/1020.png" alt="" loading="lazy"></figure>
+<p>而在notfull的另一边，需要有一个唤醒机制，所以消费者这边会有一个notfull.signal()操作。一旦count做了一个减减操作，buffer满了消费了一个操作，这是buffer句未满了，所以需要去进行唤醒，去唤醒正在等待在这上面的线程。</p>
+<ul>
+<li>消费者的buffer为空操作与生产者的buffer非空唤醒操作</li>
+</ul>
+<figure data-type="image" tabindex="169"><img src="https://memorykki.github.io/post-images/os-interview/1021.png" alt="" loading="lazy"></figure>
+<p>这消费者这边，buffer空的时候，也同样会有一个while操作，会判断count是否等于0，如果是会作一个notempty的wait操作，直到生产有一个notempty.signal的信号唤醒才可以继续去执行。两者合在一起就是完整的管程来解决生产者消费者的问题。</p>
+<ul>
+<li>总的实现与和信号量的代码比较<br>
+管程实现：</li>
+</ul>
+<figure data-type="image" tabindex="170"><img src="https://memorykki.github.io/post-images/os-interview/1022.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="171"><img src="https://memorykki.github.io/post-images/os-interview/1023.png" alt="" loading="lazy"></figure>
+<p>信号量实现：</p>
+<figure data-type="image" tabindex="172"><img src="https://memorykki.github.io/post-images/os-interview/1024.png" alt="" loading="lazy"></figure>
+<p>两者相比，可以看出，与信号量实现的总体功能是一样的，但是实现的细节不一样。</p>
+<p>三、两种特别的方式<br>
+问题：<br>
+管程实现生产者消费者问题中，还需要注意到一点，当线程在管程中执行时，如果线程这时候要执行针对某一个条件变量的signal唤醒操作之后。这时候，是执行等待在这个条件变量上的线程？还是发出唤醒的线程执行完毕后再让那个等待的线程执行？</p>
+<p>1、两种方法</p>
+<ul>
+<li>Hoare方法（比较完美）<br>
+一旦发出了signal操作之后，就应该让等待的线程继续执行，而其自身去睡眠。直到等待的线程执行了release之后，这个线程才能继续执行。</li>
+</ul>
+<p>特点：比较直观，但是实现起来比较困难</p>
+<p>执行的流程如下：</p>
+<figure data-type="image" tabindex="173"><img src="https://memorykki.github.io/post-images/os-interview/1025.png" alt="" loading="lazy"></figure>
+<ul>
+<li>Hansen方法：<br>
+当发出了signal操作之后，不一定要马上放出对cpu的控制权，而是等发出signal的线程执行完release操作之后才转移cpu控制权。</li>
+</ul>
+<p>特点：实现起来比较容易</p>
+<p>执行的流程如下：</p>
+<figure data-type="image" tabindex="174"><img src="https://memorykki.github.io/post-images/os-interview/1026.png" alt="" loading="lazy"></figure>
+<p>2、比较<br>
+Hoare的while操作可以用if操作来实现，而Hansen的不行，这是唤醒机制不同而造成的。</p>
+<figure data-type="image" tabindex="175"><img src="https://memorykki.github.io/post-images/os-interview/1027.png" alt="" loading="lazy"></figure>
+<ul>
+<li>
+<p>对于Hansen来说，其并没有马上让等待在这上面的线程执行，所以其必须要做relseae才能释放，所以这时会存在多个被唤醒的线程，抢这个继续执行的count。所以当选择自己的时候，count已经不为n了，所以要循环的查询。</p>
+</li>
+<li>
+<p>对于Hoare来说，执行之后会马上的转移cpu、控制权，而这时只要一个线程被唤醒，不存在多个的问题。而其一定可以往下执行，因为count一定不为n。</p>
+</li>
+</ul>
+<p>四、总结</p>
+<figure data-type="image" tabindex="176"><img src="https://memorykki.github.io/post-images/os-interview/1028.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="177"><img src="https://memorykki.github.io/post-images/os-interview/1029.png" alt="" loading="lazy"></figure>
+<h2 id="106-经典同步问题1-读者优先读写者问题">10.6. 经典同步问题1----读者优先读写者问题</h2>
+<p>一、读者写者问题<br>
+1、动机：共享数据的访问</p>
+<p>2、两种类型的使用者</p>
+<ul>
+<li>读者：不需要修改数据</li>
+<li>写者：读取和修改数据</li>
+</ul>
+<p>3、问题的约束</p>
+<ul>
+<li>允许同一时间有多个读者，但在任何时候只有一个写者</li>
+<li>当没有写者时读者才能访问数据</li>
+<li>当没有读者和写者时写者才能访问数据</li>
+<li>在任何时候只能有一个线程可以操作共享变量</li>
+<li>读者优先，不按时间顺序</li>
+</ul>
+<p>4、共享数据的设计</p>
+<ul>
+<li>数据集</li>
+<li>信号量CountMutex初始化为1<br>
+保证count的读写是互斥的</li>
+<li>信号量WriteMutex初始化为1<br>
+保证写者的互斥保护，因为只允许一个写操作</li>
+<li>整数Rcount初始化1<br>
+当前读者的数量，因为可以有多个读者同时操作</li>
+</ul>
+<p>二、实现的过程</p>
+<figure data-type="image" tabindex="178"><img src="https://memorykki.github.io/post-images/os-interview/1030.png" alt="" loading="lazy"></figure>
+<p>sem_wait：就是p操作，也就是减一操作<br>
+sem_post：就是v操作，也就是加一操作<br>
+1、写者的互斥保证</p>
+<figure data-type="image" tabindex="179"><img src="https://memorykki.github.io/post-images/os-interview/1031.png" alt="" loading="lazy"></figure>
+<p>分析：<br>
+包起来之后确保只有一个线程可以进行写操作。且一旦写者在写，读者就不能读，只能等待。而当读者在读数据的时候，写者也不能写数据。完成了读者写者的互斥操作与写者与写者的互斥操作。<br>
+但是没有体现可以允许多个读者读数据</p>
+<p>2、多读者体现</p>
+<figure data-type="image" tabindex="180"><img src="https://memorykki.github.io/post-images/os-interview/1032.png" alt="" loading="lazy"></figure>
+<p>分析：</p>
+<ul>
+<li>rcount=0，代表当时没有读者，所以只要没有写者，就可以继续的执行。</li>
+<li>但是当如果rount！=0的时候，表明当前已经有读者线程在读数据了，也意味着接下来的操作，写者是一定进不来的，rcount++操作完成读就好。</li>
+<li>当读完的时候，如果rcount=0，也就是说读者已经读完了，这时外面可能存在写者，所以要唤醒。</li>
+</ul>
+<p>3、多读者的互斥</p>
+<figure data-type="image" tabindex="181"><img src="https://memorykki.github.io/post-images/os-interview/1033.png" alt="" loading="lazy"></figure>
+<p>分析：<br>
+确保不会存在多个读者同时对rcount进行操作，也就是保证rcount数据的互斥性。</p>
+<p>4、完整的读者优先的读者写者问题</p>
+<figure data-type="image" tabindex="182"><img src="https://memorykki.github.io/post-images/os-interview/1034.png" alt="" loading="lazy"></figure>
+<p>三、读者优先与写者优先的区别：</p>
+<figure data-type="image" tabindex="183"><img src="https://memorykki.github.io/post-images/os-interview/1035.png" alt="" loading="lazy"></figure>
+<h2 id="107-经典同步问题1写者优先读写者问题">10.7. 经典同步问题1—写者优先读写者问题</h2>
+<p>利用管程实现写者优先的读者写者问题<br>
+一、基础<br>
+1、方法构思</p>
+<figure data-type="image" tabindex="184"><img src="https://memorykki.github.io/post-images/os-interview/1036.png" alt="" loading="lazy"></figure>
+<p>需要注意：</p>
+<ul>
+<li>读者进行读操作时要注意当前是否有写者（两类：正在写数据的写者和正在等待的写者），这两类写者只要有一个存在，那么读者就需要等待。都不存在才有机会进行读操作。</li>
+<li>读完之后，检测是否有写者正在等待，其有责任去唤醒。</li>
+<li>当当前有读者正在读的读者或者正在写的写者时，需要等待。（正在等待的读者不需等待，写者优先）</li>
+<li>写操作之后，唤醒正在等待的写者或者正在等待的读者。</li>
+</ul>
+<p>2、数据结构</p>
+<figure data-type="image" tabindex="185"><img src="https://memorykki.github.io/post-images/os-interview/1037.png" alt="" loading="lazy"></figure>
+<p>AR：当前处于读数据库读者的个数<br>
+AW：当前正在写的个数<br>
+WR：当前正在等待读者的个数<br>
+WW：当前正在等待写者的个数<br>
+oktoread：表示当前可以去读<br>
+oktowrite：表示当前可以去写<br>
+lock：确保只有一个函数进入管程去执行<br>
+二、实现<br>
+1、读者的具体实现</p>
+<figure data-type="image" tabindex="186"><img src="https://memorykki.github.io/post-images/os-interview/1038.png" alt="" loading="lazy"></figure>
+<p>解析：</p>
+<ul>
+<li>因为读者读数据的时候，要确保没有正在写的写者和正在等待的写者（写者优先），所以while语句中判断的依据是（AW+WW）&gt;0的时候，都需要等待，并且不断记录被等待的读者，也就是WR++。等到没有写者的时候，被唤醒，其中一个等待的读者可以继续执行，并且WR–。</li>
+<li>当完成读数据库的操作时，正在读的读者减一操作。并且当此时已经没有读者而且正在有等待的写者时，进行唤醒写者的操作。但是当还有读者的时候，为了保证读写的互斥，就没有必要唤醒写者了。</li>
+</ul>
+<p>2、写者的具体实现</p>
+<figure data-type="image" tabindex="187"><img src="https://memorykki.github.io/post-images/os-interview/1039.png" alt="" loading="lazy"></figure>
+<p>解析：</p>
+<ul>
+<li>当一个写者想写数据的时候，首先进行判断当前有无正在读的读者或者是正在写的写，等待的不需考虑。若没有时，说明可以有机会被唤醒去执行后面的操作。否者继续等待，直到被唤醒，然后等待的写者++。</li>
+<li>当写完数据时，正在写的写者减一操作（其实我认为AW只有01两个取值，有正在写的写者，或者没有正在写的写者），此时表面没有正在写的写者，而当有等待的写者，既去唤醒其中的一个写者执行。否则，当有正在等待的读者时，去唤醒全部的读者。</li>
+<li>需要注意，signal是唤醒等待在这个条件变量上的一个，而broadcast是唤醒等待在这个条件变量上面的全部。</li>
+</ul>
+<h2 id="108-经典同步问题2哲学家就餐问题">10.8. 经典同步问题2—哲学家就餐问题</h2>
+<p>一、基础与尝试<br>
+1、问题描述</p>
+<figure data-type="image" tabindex="188"><img src="https://memorykki.github.io/post-images/os-interview/1040.png" alt="" loading="lazy"></figure>
+<p>拿叉子，减一的p操作<br>
+放叉子，加一的v操作<br>
+2、尝试解决（可以跳过）<br>
+方案一：</p>
+<figure data-type="image" tabindex="189"><img src="https://memorykki.github.io/post-images/os-interview/1041.png" alt="" loading="lazy"></figure>
+<p>结果：会导致死锁，谁都拿不了右边的叉子</p>
+<p>方案二：</p>
+<figure data-type="image" tabindex="190"><img src="https://memorykki.github.io/post-images/os-interview/1042.png" alt="" loading="lazy"></figure>
+<p>结果：会重复过程</p>
+<p>方案三：等待随机的时间</p>
+<figure data-type="image" tabindex="191"><img src="https://memorykki.github.io/post-images/os-interview/1043.png" alt="" loading="lazy"></figure>
+<p>结果：等待时间随机变化，可行，但非万全之策。可能等待时间长的哲学家一直在等待。</p>
+<p>方案四：<br>
+使用信号量的互斥锁来保护</p>
+<figure data-type="image" tabindex="192"><img src="https://memorykki.github.io/post-images/os-interview/1044.png" alt="" loading="lazy"></figure>
+<p>结果：<br>
+互斥访问可以实现不会出现死锁的情况，但是每次只允许一个人进餐。本来可以并行两个哲学家同时吃饭，这与问题项背，效率较低。<br>
+其将就餐（而不是叉子）看成是必须互斥访问的临界资源，因此回造成（叉子）资源的浪费。</p>
+<p>二、实现思路<br>
+1、不同的思考</p>
+<ul>
+<li>哲学家维度</li>
+</ul>
+<figure data-type="image" tabindex="193"><img src="https://memorykki.github.io/post-images/os-interview/1045.png" alt="" loading="lazy"></figure>
+<ul>
+<li>计算机维度</li>
+</ul>
+<figure data-type="image" tabindex="194"><img src="https://memorykki.github.io/post-images/os-interview/1046.png" alt="" loading="lazy"></figure>
+<p>2、编写</p>
+<ul>
+<li>思路</li>
+</ul>
+<figure data-type="image" tabindex="195"><img src="https://memorykki.github.io/post-images/os-interview/1047.png" alt="" loading="lazy"></figure>
+<ul>
+<li>数据结构</li>
+</ul>
+<figure data-type="image" tabindex="196"><img src="https://memorykki.github.io/post-images/os-interview/1048.png" alt="" loading="lazy"></figure>
+<ul>
+<li>操作方法</li>
+</ul>
+<figure data-type="image" tabindex="197"><img src="https://memorykki.github.io/post-images/os-interview/1049.png" alt="" loading="lazy"></figure>
+<p>3、具体的实现</p>
+<ul>
+<li>函数take_forks的定义</li>
+</ul>
+<figure data-type="image" tabindex="198"><img src="https://memorykki.github.io/post-images/os-interview/1050.png" alt="" loading="lazy"></figure>
+<p>需要注意：<br>
+hungry的状态需要互斥保护<br>
+拿两把叉子的过程其实也是在互斥的保护之中</p>
+<ul>
+<li>函数test_take_left_right_forks的定义</li>
+</ul>
+<figure data-type="image" tabindex="199"><img src="https://memorykki.github.io/post-images/os-interview/1051.png" alt="" loading="lazy"></figure>
+<p>分析：</p>
+<ul>
+<li>首先确保自己是出于饥饿状态的，然后判断两旁的人是否是出于eatting状态，如果都不是，意味两边都有叉子，就可以吃饭了。</li>
+<li>可以看出，两把叉子到手，没有一个具体的变量来体现，而是说用状态来表示（因为拿一把叉子是没有意义的）。</li>
+<li>而在前面赋初值的时候，s[i]的初值是0，v操作之后，自身编变成了1，也就是自己通知自己可以吃饭了。</li>
+</ul>
+<p>问题：为什么会通知自己吃饭？<br>
+因为在take_forks函数的最后，会有一个p操作，加1之后会减1操作，所以这里的p操作不会被阻塞。只是使得同步信号量加一操作之后，使这里的减一操作不会被阻塞。</p>
+<ul>
+<li>函数put_forks的定义<br>
+功能：把两把叉子放回原处，并在需要的时候去唤醒左岭右舍</li>
+</ul>
+<figure data-type="image" tabindex="200"><img src="https://memorykki.github.io/post-images/os-interview/1052.png" alt="" loading="lazy"></figure>
+<p>需要注意：<br>
+这里查看自己的左邻居能否进餐的时候，还有看自己左邻居的左邻居的状态。如果自己左邻居的左邻居的状态是进餐状态，这左邻居不可能进餐。自己的右邻居同理。</p>
+<ul>
+<li>程序设计的思考过程<br>
+以一般的思路分许问题，写出一个伪代码，再将伪代码变成程序。<br>
+在这个过程中要设定好变量（同步和互斥的机制）<br>
+逐步细化的方式实现这个处理的过程，一般来说是会匹配的（p操作和v操作）</li>
+</ul>
+<h1 id="11-死锁">11. 死锁</h1>
+<h2 id="111-死锁问题">11.1. 死锁问题</h2>
+<p>1、死锁现象</p>
+<figure data-type="image" tabindex="201"><img src="https://memorykki.github.io/post-images/os-interview/111.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="202"><img src="https://memorykki.github.io/post-images/os-interview/112.png" alt="" loading="lazy"></figure>
+<p>出现的原因：进程并发运行</p>
+<h2 id="112-系统模型">11.2. 系统模型</h2>
+<p>1、资源概念</p>
+<figure data-type="image" tabindex="203"><img src="https://memorykki.github.io/post-images/os-interview/113.png" alt="" loading="lazy"></figure>
+<p>资源一旦是被使用状态，则其他的进程就不应该运用这个资源，有互斥性，如果没有互斥性，就不会产生死锁。<br>
+进程使用资源的有限的，资源恢复到空闲的情况。<br>
+2、可重复使用的资源</p>
+<ul>
+<li>在一个时间只能一个进程使用且不能删除</li>
+<li>进程获得资源，后来释放有其他进程重用</li>
+<li>处理器，io通道，主和副存储器，设备和数据结构，如文件，数据库和信号量都可以看作是资源的一种形式</li>
+<li>如果每个进程拥有一个资源并且请求其他资源，死锁可能发生</li>
+</ul>
+<p>3、如何使用资源</p>
+<ul>
+<li>创建和销毁进行资源管理，内存管理</li>
+<li>在op缓冲区中的中断，信号，消息，信息</li>
+<li>如果接受消息阻塞可能会发生死锁</li>
+<li>可能少见的组合事件会引起死锁</li>
+<li>存在进程管理和调度的过程</li>
+</ul>
+<p>4、资源分配图</p>
+<figure data-type="image" tabindex="204"><img src="https://memorykki.github.io/post-images/os-interview/114.png" alt="" loading="lazy"></figure>
+<p>pi-&gt;rj：表示进程i需要j的资源<br>
+rj-&gt;pi：表示资源i被j所使用</p>
+<figure data-type="image" tabindex="205"><img src="https://memorykki.github.io/post-images/os-interview/115.png" alt="" loading="lazy"></figure>
+<p>5、死锁的判断</p>
+<ul>
+<li>情况一</li>
+</ul>
+<figure data-type="image" tabindex="206"><img src="https://memorykki.github.io/post-images/os-interview/116.png" alt="" loading="lazy"></figure>
+<p>不会产生死锁</p>
+<ul>
+<li>情况二</li>
+</ul>
+<figure data-type="image" tabindex="207"><img src="https://memorykki.github.io/post-images/os-interview/117.png" alt="" loading="lazy"></figure>
+<p>会产生死锁，这个图形成了一个环状的结构（一个大环和小环）</p>
+<ul>
+<li>情况三</li>
+</ul>
+<figure data-type="image" tabindex="208"><img src="https://memorykki.github.io/post-images/os-interview/118.png" alt="" loading="lazy"></figure>
+<p>有环状的资源分配图没有死锁</p>
+<p>总结：<br>
+死锁一定有环，但是有环不一样产生死锁</p>
+<figure data-type="image" tabindex="209"><img src="https://memorykki.github.io/post-images/os-interview/119.png" alt="" loading="lazy"></figure>
+<h2 id="113-死锁的特征">11.3. 死锁的特征</h2>
+<p>这个是死锁出现的四个特征：</p>
+<figure data-type="image" tabindex="210"><img src="https://memorykki.github.io/post-images/os-interview/1110.png" alt="" loading="lazy"></figure>
+<p>需要注意：这四个特征出现并不意味着死锁的出现</p>
+<figure data-type="image" tabindex="211"><img src="https://memorykki.github.io/post-images/os-interview/1111.png" alt="" loading="lazy"></figure>
+<p>右图的p2和p4不满足持有并等待资源，所以不满足这四个特征，所以不是死锁。</p>
+<h2 id="114-死锁处理办法">11.4. 死锁处理办法</h2>
+<figure data-type="image" tabindex="212"><img src="https://memorykki.github.io/post-images/os-interview/1112.png" alt="" loading="lazy"></figure>
+<p>以上的四个方法的约束一个比一个弱，死锁预防的约束最强，而死锁恢复的约束最差。</p>
+<p>方法一：确保系统永远不会进入死锁状态<br>
+操作系统的功能会被限制，应用系统无法重复的利用cpu执行开销也很大</p>
+<p>方法二：运行系统进入死锁状态，然后恢复<br>
+但是判断死锁的开销非常大</p>
+<p>方法三：忽略这个问题，假装系统中从来没有发生死锁；用于绝大多数的操作系统。<br>
+靠假设来忽略这个问题，实际操作的常用方法</p>
+<h2 id="115-死锁预防和死锁避免">11.5. 死锁预防和死锁避免</h2>
+<p>1、死锁的预防 ---- 让死锁不会出现<br>
+思路：只要将前诉的四个资源打破其中的一个，那么久不会出现死锁。</p>
+<figure data-type="image" tabindex="213"><img src="https://memorykki.github.io/post-images/os-interview/1113.png" alt="" loading="lazy"></figure>
+<p>针对死锁的四个必要条件，打破死锁进行一开始预防：</p>
+<ul>
+<li>互斥<br>
+本来资源是互斥的，通过使资源不互斥。</li>
+<li>占用并等待<br>
+将条件变大，拿资源就拿全部的资源才去执行，否者不能资源去睡眠，这样就不会存在死锁。但是不同的执行过程中，需要的资源不同，导致一直占用资源但是没有使用，所以会导致系统资源的利用率低。</li>
+<li>不抢占<br>
+直接将进程kill掉，也就将资源抢占过来了，但是手段比较的暴力，不合理。</li>
+<li>循环等待<br>
+死锁的出现会出现一个环，打破这个环可以实现死锁的预防。如果对资源类型进行排序，进程按资源顺序进行申请，也就是资源只能往上进行申请，这样就不会形成循环的圈。但是前提是要讲资源排好序，但是资源利用还是不合理的。</li>
+</ul>
+<p>2、死锁避免<br>
+比上诉的约束条件放松一点<br>
+思路：当进程在申请资源的过程中，然后判断这个申请合不合理，如果会存在死锁的概率，就会拒绝这个请求。</p>
+<p>需要注意：<br>
+其中，不安全状态不一定对导致死锁状态，所以不安全状态是包含着死锁状态，我们需要的是安全状态。将是否会形成环来作为判断依据。</p>
+<p>问题：什么是安全状态？<br>
+针对所有的进程，存在一个时间序列，按照这个序列执行，先后顺序执行，所以的进程都可以正常的等待所需要的资源，正常的结束。</p>
+<figure data-type="image" tabindex="214"><img src="https://memorykki.github.io/post-images/os-interview/1114.png" alt="" loading="lazy"></figure>
+<p>要避免进入unsafe空间。而在safe状态不会出现一个环。</p>
+<figure data-type="image" tabindex="215"><img src="https://memorykki.github.io/post-images/os-interview/1115.png" alt="" loading="lazy"></figure>
+<p>11.6银行家算法<br>
+一、基础<br>
+1、算法的背景</p>
+<figure data-type="image" tabindex="216"><img src="https://memorykki.github.io/post-images/os-interview/1116.png" alt="" loading="lazy"></figure>
+<p>2、前提基础</p>
+<figure data-type="image" tabindex="217"><img src="https://memorykki.github.io/post-images/os-interview/1117.png" alt="" loading="lazy"></figure>
+<p>很重要的判断：safe还是unsafe</p>
+<p>二、算法设计<br>
+1、数据结构的设计</p>
+<ul>
+<li>n = 进程数量</li>
+<li>m = 资源类型数量<br>
+（其中，每一个资源类型还要一个量）</li>
+<li>Max（某种类型的总需求量）：nxm矩阵。<br>
+如果Max[i，j] = k，表示进程Pi最多请求资源类型Rj的k个示例<br>
+（可以知道其整个生命周期中共需要该类多少个资源）</li>
+</ul>
+<figure data-type="image" tabindex="218"><img src="https://memorykki.github.io/post-images/os-interview/1118.png" alt="" loading="lazy"></figure>
+<p>其中存在一条关系式：</p>
+<figure data-type="image" tabindex="219"><img src="https://memorykki.github.io/post-images/os-interview/1119.png" alt="" loading="lazy"></figure>
+<p>2、初始化</p>
+<figure data-type="image" tabindex="220"><img src="https://memorykki.github.io/post-images/os-interview/1120.png" alt="" loading="lazy"></figure>
+<p>3、操作</p>
+<figure data-type="image" tabindex="221"><img src="https://memorykki.github.io/post-images/os-interview/1121.png" alt="" loading="lazy"></figure>
+<p>执行之后：</p>
+<p>可申请的资源变少，变少了request<br>
+已分配的资源变多，变多了request<br>
+还需要的资源变少，变少了request<br>
+根据返回值做出改变：</p>
+<figure data-type="image" tabindex="222"><img src="https://memorykki.github.io/post-images/os-interview/1122.png" alt="" loading="lazy"></figure>
+<p>以上就是银行家算法的一个大致思路。</p>
+<p>三、示例<br>
+第一个例子<br>
+1、首先系统和进程所拥有的资源如下图所示</p>
+<figure data-type="image" tabindex="223"><img src="https://memorykki.github.io/post-images/os-interview/1123.png" alt="" loading="lazy"></figure>
+<p>需要注意：</p>
+<p>Max：所有进程需要资源的情况<br>
+Need：当前进程需要进程的情况<br>
+Available：系统还剩下资源的情况<br>
+Allocation：当前进程已经拥有的资源<br>
+Resource：当前系统中总资源的个数<br>
+2、可见，p2可以满足情况，执行后可返回其所占有的资源</p>
+<figure data-type="image" tabindex="224"><img src="https://memorykki.github.io/post-images/os-interview/1124.png" alt="" loading="lazy"></figure>
+<p>3、回收资源之后，按照顺序，p1所需要的资源是可以满足的，可以执行</p>
+<figure data-type="image" tabindex="225"><img src="https://memorykki.github.io/post-images/os-interview/1125.png" alt="" loading="lazy"></figure>
+<p>4、p1执行完之后，对资源进行回收，接下来剩下的两个进程偶读可以满足要求。可以随便选一个，比如p3，然后再选择p4.</p>
+<figure data-type="image" tabindex="226"><img src="https://memorykki.github.io/post-images/os-interview/1126.png" alt="" loading="lazy"></figure>
+<p>结论：<br>
+所以，这样我们就已经找到了一个序列，如果按照p2-p1-p3-p4这个顺序去执行，就可以实现所以的进程都可以正常的执行并结束，其所需要的资源都可以得到满足。这个就是安全的执行序列，safe。</p>
+<p>第二个例子：</p>
+<figure data-type="image" tabindex="227"><img src="https://memorykki.github.io/post-images/os-interview/1127.png" alt="" loading="lazy"></figure>
+<p>如果一开始p1提出了一个101请求，执行之后</p>
+<figure data-type="image" tabindex="228"><img src="https://memorykki.github.io/post-images/os-interview/1128.png" alt="" loading="lazy"></figure>
+<p>此时系统所剩余的资源为011，此时不能满足任何的其他进程，会进入一个unsafe的状态。<br>
+所以，一开始银行家算法是不会接受p1的101的请求的。</p>
+<p>总结：<br>
+银行家算法的思路是判断当前的资源分配操作是否安全的，如果安全则可以执行，如果不安全就不能分配出去。</p>
+<h2 id="116-死锁检测和死锁恢复">11.6. 死锁检测和死锁恢复</h2>
+<p>一、基础<br>
+1、背景<br>
+死锁的检测又将条件放宽了一点。</p>
+<p>前面的死锁避免是既是不会导致死锁的现象方法，但是如果会出现不安全状态，也不会执行。<br>
+这里的死锁检测允许系统进入unsafe状态，在某一个状态判断当前的系统是否出现死锁，如果是，就启动恢复机制；如果没有，就继续执行，将死锁的检测放在了系统运行中，更往后了。<br>
+2、死锁检测的大致思路</p>
+<p>允许系统进入死锁状态<br>
+死锁检测算法<br>
+恢复机制<br>
+3、检测原理</p>
+<ul>
+<li>将资源分配图中资源的节点简化，只留下进程。从而将资源分配图，变成进程等待图。然后再判断这个等待图是否具有环。有环就代表有可能死锁。</li>
+</ul>
+<figure data-type="image" tabindex="229"><img src="https://memorykki.github.io/post-images/os-interview/1128.png" alt="" loading="lazy"></figure>
+<ul>
+<li>死锁检测算法</li>
+</ul>
+<figure data-type="image" tabindex="230"><img src="https://memorykki.github.io/post-images/os-interview/1129.png" alt="" loading="lazy"></figure>
+<p>死锁检测算法，定期的执行对操作系统运行比较大，更多是起调试的作用。而已银行家算法需要提前知道进程未来所需要的资源，这个是比较难实现的，只能去预估。</p>
+<p>二、示例<br>
+1、例子一</p>
+<figure data-type="image" tabindex="231"><img src="https://memorykki.github.io/post-images/os-interview/1130.png" alt="" loading="lazy"></figure>
+<p>2、例子二</p>
+<figure data-type="image" tabindex="232"><img src="https://memorykki.github.io/post-images/os-interview/1131.png" alt="" loading="lazy"></figure>
+<p>结果：<br>
+没有一个进程的需求可以得到满足，死锁会检测出一个环，与银行家算法是比较类似的。</p>
+<p>三、算法是使用</p>
+<figure data-type="image" tabindex="233"><img src="https://memorykki.github.io/post-images/os-interview/1132.png" alt="" loading="lazy"></figure>
+<p>四、死锁的恢复</p>
+<figure data-type="image" tabindex="234"><img src="https://memorykki.github.io/post-images/os-interview/1134.png" alt="" loading="lazy"></figure>
+<p>都存在某种程度上的强制性和不合理性。所以死锁恢复是最后的手段。</p>
+<figure data-type="image" tabindex="235"><img src="https://memorykki.github.io/post-images/os-interview/1135.png" alt="" loading="lazy"></figure>
+<h2 id="117-ipc概述">11.7. IPC概述</h2>
+<p>一、基础<br>
+IPC的意思就是进程间通信<br>
+1、问题：为什么要进行进程间通信？<br>
+进程之间可能要完成一个大的任务，这需要一定的数据的沟通和信息的传递，保存进程独立性的通信，保证其可以有效的沟通。</p>
+<p>2、IPC提供2个操作<br>
+send message<br>
+receive message</p>
+<p>3、通信的前提<br>
+在他们之间建立通信链路<br>
+通过send/receive交换消息</p>
+<p>4、通信链路实现<br>
+物理（例如共享内存，硬件总线）<br>
+逻辑（例如，逻辑属性）</p>
+<p>二、间接通信与直接通信</p>
+<figure data-type="image" tabindex="236"><img src="https://memorykki.github.io/post-images/os-interview/1136.png" alt="" loading="lazy"></figure>
+<ul>
+<li>直接通信</li>
+</ul>
+<figure data-type="image" tabindex="237"><img src="https://memorykki.github.io/post-images/os-interview/1137.png" alt="" loading="lazy"></figure>
+<ul>
+<li>间接通信</li>
+</ul>
+<figure data-type="image" tabindex="238"><img src="https://memorykki.github.io/post-images/os-interview/1138.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="239"><img src="https://memorykki.github.io/post-images/os-interview/1139.png" alt="" loading="lazy"></figure>
+<p>主需要关注在哪里收数据或者将数据丢到哪里去就行了。一般是os中的共享数据。</p>
+<p>三、阻塞或是非阻塞的</p>
+<figure data-type="image" tabindex="240"><img src="https://memorykki.github.io/post-images/os-interview/1140.png" alt="" loading="lazy"></figure>
+<h2 id="118-信号管道消息队列和共享内存">11.8. 信号，管道，消息队列和共享内存</h2>
+<p>（这里只是作简单的介绍，没有涉及具体的实现方法）<br>
+1、数据的缓冲</p>
+<figure data-type="image" tabindex="241"><img src="https://memorykki.github.io/post-images/os-interview/1141.png" alt="" loading="lazy"></figure>
+<p>需要注意：<br>
+无论是哪种情况，当缓冲中没有数据的时候，接收方都必须等待数据的到来</p>
+<p>一、信号<br>
+1、介绍</p>
+<figure data-type="image" tabindex="242"><img src="https://memorykki.github.io/post-images/os-interview/1142.png" alt="" loading="lazy"></figure>
+<p>关注某一种信号，发生了某一种响应之后，可以编写特定的处理函数。效率比较高。<br>
+处理完之后，会回到被打断的函数重新的实现。</p>
+<p>2、如何实现</p>
+<figure data-type="image" tabindex="243"><img src="https://memorykki.github.io/post-images/os-interview/1143.png" alt="" loading="lazy"></figure>
+<p>应用程序针对某种新号作定点处理，要完成的操作是：</p>
+<ul>
+<li>开始的时候，要针对某种信号的handle，把这个作为系统调用发给操作系统。操作系统就知道当这个进程发出某种信号就会跳转到预先编写的处理函数中。</li>
+<li>操作系统将系统调用返回用户空间的堆栈进行修改，使得本来是返回调用语句的后条执行变成到这个信号处理函数的入口，同时在把信号处理函数的之后的地址作为栈帧的返回地址。所以要修改应用程序的堆栈。</li>
+</ul>
+<p>二、管道<br>
+管道是用来实现数据的交换。其以文件的操作。<br>
+思路：将一个文件的输出，重定向到令一个文件的输入，这样就可以完成一系列的操作。（重定向符为“&gt;”）</p>
+<figure data-type="image" tabindex="244"><img src="https://memorykki.github.io/post-images/os-interview/1144.png" alt="" loading="lazy"></figure>
+<p>如何实现：<br>
+shell进程收到了这条命令之后，会创建两个进程，ls进程和more进程。同时将ls的输出到一个管道中，而不是屏幕上（内存中的一个buffer）。而对于more，不是从键盘接受信息，而是从管道中接受数据，这样就完成了输入输出的重定向功能。这样就完成了分页显示目录的功能。（存在阻塞现象）</p>
+<p>特点：</p>
+<ul>
+<li>管道是通过父进程帮子进程建立好的一个通道，如果没有父子关系，这样就不能正常工作了。</li>
+<li>管道的数据是一种字节流。</li>
+<li>有bufffer满和buffer空的限制</li>
+</ul>
+<p>三、消息队列</p>
+<figure data-type="image" tabindex="245"><img src="https://memorykki.github.io/post-images/os-interview/1145.png" alt="" loading="lazy"></figure>
+<p>特点：</p>
+<ul>
+<li>数据是结构化的数据，而不是字节流，传进去的是一个有意义的数据结构</li>
+<li>可以实现多个互不相关的进程完成数据交换</li>
+</ul>
+<p>四、共享内存<br>
+上面两种都是间接通信。共享内存是直接通信的方式。<br>
+（通过内核，读写内存，实现进程的数据的交换）</p>
+<figure data-type="image" tabindex="246"><img src="https://memorykki.github.io/post-images/os-interview/1146.png" alt="" loading="lazy"></figure>
+<p>共享内存的实现机制：</p>
+<figure data-type="image" tabindex="247"><img src="https://memorykki.github.io/post-images/os-interview/1147.png" alt="" loading="lazy"></figure>
+<h1 id="12-面试总结">12. 面试总结</h1>
+<h2 id="121-用户态和内核态">12.1. 用户态和内核态</h2>
+<p>计算机系统中的两类程序：系统程序和应用程序，为了保证系统程序不被应用程序有意或无意地破坏，为计算机设置了两种状态：</p>
+<ul>
+<li>系统态(也称为管态或核心态)，操作系统在系统态运行——运行操作系统程序</li>
+<li>用户态(也称为目态)，应用程序只能在用户态运行——运行用户程序</li>
+</ul>
+<p>将 CPU 的指令集分为特权指令和非特权指令两类：</p>
+<ul>
+<li>
+<p>特权指令——在内核态时运行的指令<br>
+对内存空间的访问范围基本不受限制，不仅能访问用户存储空间，也能访问系统存储空间，<br>
+特权指令只允许操作系统使用，不允许应用程序使用，否则会引起系统混乱。<br>
+特权指令：启动IO、内存清零、修改程序状态字、设置时钟、允许/禁止中断、停机；</p>
+</li>
+<li>
+<p>非特权指令——在用户态时运行的指令<br>
+一般应用程序所使用的都是非特权指令，它只能完成一般性的操作和任务，不能对系统中的硬件和软件直接进行访问，其对内存的访问范围也局限于用户空间。<br>
+非特权指令：控制转移、算术运算、访管指令、取数指令</p>
+</li>
+</ul>
+<p><strong>UNIX</strong> 系统把进程的执行状态分为两种:</p>
+<ul>
+<li>用户态执行，表示进程正处于用户状态中执行；</li>
+<li>核心态执行，表示一个应用进程执行系统调用后，或 I/O 中断、时钟中断后，进程便处于核心态执行。</li>
+</ul>
+<p>差别在于：</p>
+<ul>
+<li>处于用户态执行时，进程所能访问的内存空间和对象受到限制，其所占有的处理机是可被抢占的；</li>
+<li>而处于核心态执行中的进程，则能访问所有的内存空间和对象，且所占用的处理机是不允许被抢占的。<br>
+ <br>
+<strong>注意</strong></li>
+</ul>
+<p>用户态切换到内核态的唯一途径——&gt;中断/异常/陷入/系统调用（就是陷入指令）<br>
+内核态切换到用户态的途径——&gt;设置程序状态字</p>
+<p>注意一条特殊的指令——陷入指令（又称为访管指令，因为内核态也被称为管理态，访管就是访问管理态）。该指令给用户提供接口，用于调用操作系统的服务。</p>
+<h2 id="122-缓冲区溢出">12.2. 缓冲区溢出</h2>
+<p>缓冲区溢出是指当计算机向缓冲区内填充数据时超过了缓冲区本身的容量，溢出的数据覆盖在合法数据上。</p>
+<p><strong>危害</strong><br>
+而缓冲区溢出中，最为危险的是堆栈溢出，因为入侵者可以利用堆栈溢出，在函数返回时改变返回程序的地址，让其跳转到任意地址；<br>
+带来的危害一种是程序崩溃导致拒绝服务，另外一种就是跳转并且执行一段恶意代码，比如得到shell，然后为所欲为。通过往程序的缓冲区写超出其长度的内容，造成缓冲区的溢出，从而破坏程序的堆栈，使程序转而执行其它指令，以达到攻击的目的。</p>
+<p>造成缓冲区溢出的主原因是程序中没有仔细检查用户输入的参数。</p>
+<h2 id="123-中断与轮询">12.3. 中断与轮询</h2>
+<ul>
+<li>
+<p>中断是指在计算机执行期间，系统内发生任何非寻常的或非预期的急需处理事件，使得CPU暂时中断当前正在执行的程序而转去执行相应的事件处理程序。待处理完毕后又返回原来被中断处继续执行或调度新的进程执行的过程。<br>
+中断和轮询的特点</p>
+</li>
+<li>
+<p>对I/O设备的程序轮询的方式，是早期的计算机系统对I/O设备的一种管理方式。它定时对各种设备轮流询问一遍有无处理要求。轮流询问之后，有要求的，则加以处理。在处理I/O设备的要求之后，处理机返回继续工作。尽管轮询需要时间，但轮询要比I/O设备的速度要快得多，所以一般不会发生不能及时处理的问题。当然，再快的处理机，能处理的输入输出设备的数量也是有一定限度的。而且，程序轮询毕竟占据了CPU相当一部分处理时间，因此，程序轮询是一种效率较低的方式，在现代计算机系统中已很少应用。</p>
+</li>
+</ul>
+<p>轮询——效率低，等待时间很长，CPU利用率不高。<br>
+中断——容易遗漏一些问题，CPU利用率高。</p>
+<h2 id="124-临界区">12.4. 临界区</h2>
+<p>资源的共享有两种方式：互斥共享和同时访问。<br>
+临界资源：一次仅允许一个进程使用的资源，包括硬件和软件<br>
+临界区：每个进程中访问临界资源的那段程序。每次只准许一个进程进入临界区，进入后不允许其他进程进入。</p>
+<ol>
+<li>如果有若干进程要求进入空闲的临界区，一次仅允许一个进程进入；</li>
+<li>任何时候，处于临界区内的进程不可多于一个。如已有进程进入自己的临界区，则其它所有试图进入临界区的进程必须等待；</li>
+<li>进入临界区的进程要在有限时间内退出，以便其它进程能及时进入自己的临界区；</li>
+<li>如果进程不能进入自己的临界区，则应让出CPU，避免进程出现“忙等”现象。</li>
+</ol>
+<h2 id="125-进程和线程的区别">12.5. 进程和线程的区别</h2>
+<ul>
+<li>
+<p>进程是具有一定功能的程序关于某个数据集合上的一次运行活动，进程是系统进行资源调度和分配的一个独立单位。</p>
+</li>
+<li>
+<p>线程是进程的实体，是CPU调度和分派的基本单位，它是比进程更小的能独立运行的基本单位。</p>
+</li>
+<li>
+<p>资源分配给进程，同一进程的所有线程共享该进程的所有资源。 同一进程中的多个线程共享代码段(代码和常量)，数据段(全局变量和静态变量)，扩展段(堆存储)。但是每个线程拥有自己的栈段，栈段又叫运行时段，用来存放所有局部变量和临时变量</p>
+</li>
+<li>
+<p>处理机分给线程，即真正在处理机上运行的是线程</p>
+</li>
+<li>
+<p>进程是系统进行资源调度和分配的的基本单位，实现了操作系统的并发；</p>
+</li>
+<li>
+<p>线程是CPU调度和分派的基本单位，用于保证程序的 实时性，实现进程内部的并发；</p>
+</li>
+<li>
+<p>一个程序至少有一个进程，一个进程至少有一个线程，线程依赖于进程而存在；</p>
+</li>
+<li>
+<p>进程在执行过程中拥有独立的内存单元，而多个线程共享进程的内存。</p>
+</li>
+<li>
+<p>通信方式不同。线程之间的通信比较方便，同一进程下的线程共享数据（比如全局变量，静态变量）。而进程之间的通信只能通过进程通信的方式进行</p>
+</li>
+</ul>
+<h2 id="126-程序与进程的区别">12.6. 程序与进程的区别</h2>
+<ul>
+<li>进程是一个动态概念，而程序是一个静态概念。</li>
+<li>进程具有并行特征，而程序不反映执行所以没有并行特征</li>
+<li>进程是竞争计算机系统资源的基本单位，而程序不反映执行也就不会竞争计算机系统资源</li>
+<li>不同的进程可以包含同一程序，只要该程序所对应的数据集不同。</li>
+</ul>
+<h2 id="127-进程和线程的上下文切换代价">12.7. 进程和线程的上下文切换代价</h2>
+<p>进程切换分两步：</p>
+<ul>
+<li>切换页目录以使用新的地址空间（进程）</li>
+<li>切换内核栈和硬件上下文（进程、线程）</li>
+</ul>
+<p>切换的性能消耗：</p>
+<ul>
+<li>线程上下文切换虚拟内存空间依然是相同的，但是进程切换是不同的。这两种上下文切换的处理都是通过操作系统内核来完成的。</li>
+<li>上下文的切换会扰乱处理器的缓存机制。简单的说，一旦去切换上下文，处理器中所有已经缓存的内存地址一瞬间都作废了。还有一个显著的区别是当你改变虚拟内存空间的时候，处理的页表缓冲（processor's Translation Lookaside Buffer (TLB)）或者相当的神马东西会被全部刷新，这将导致内存的访问在一段时间内相当的低效。但是在线程的切换中，不会出现这个问题。</li>
+</ul>
+<h2 id="128-进程同步的原则">12.8. 进程同步的原则</h2>
+<ul>
+<li>空闲让进；</li>
+<li>忙则等待（保证对临界区的互斥访问）；</li>
+<li>有限等待（有限代表有限的时间，避免死等）；</li>
+<li>让权等待（当进程不能进入自己的临界区时，应该释放处理机，以免陷入忙等状态）</li>
+</ul>
+<p>死等状态：<br>
+进程在有限时间内根本不能进入临界区，而一直在尝试进入，陷入一种无结果的等待状态。<br>
+（没有进入临界区的正在等待的某进程根本无法获得临界资源而进入进程，这种等待是无结果的，是死等状态）-&gt; 这个时候应该放弃这个无结果的事情，保证自己等待的时间是有限的</p>
+<p>忙等状态：<br>
+当一个进程正处在某临界区内，任何试图进入其临界区的进程都必须进入代码连续循环，陷入忙等状态。连续测试一个变量直到某个值出现为止，称为忙等。<br>
+（没有进入临界区的正在等待的某进程不断的在测试循环代码段中的变量的值，占着处理机而不释放，这是一种忙等状态）-&gt; 这个时候应该释放处理机让给其他进程</p>
+<p>有限等待：对要求访问临界资源的进程，应保证有限时间内能进入自己的临界区，以免陷入“死等”状态（受惠的是进程自己）</p>
+<p>让权等待：当进程不能进入自己的临界区时，应立即释放处理机，以免进程陷入“忙等”状态（受惠的是其他进程）</p>
+<h2 id="129-进程同步">12.9. 进程同步</h2>
+<p>在OS中引入进程后，一方面使系统的吞吐量和资源的利用率得到提升，另一方面也使得系统变得复杂，如果没有合理的方式对进程进行妥善的管理，必然会引起进程对系统资源的无序竞争，使系统变得混乱；为了实现对并发进程的有效管理，在多道程序系统中引入了同步机制，常见的同步机制有：硬件同步机制、信号量机制、管程机制等，利用它们确保程序执行的可再现性；</p>
+<h3 id="1291-硬件同步机制">12.9.1. 硬件同步机制</h3>
+<p>通常计算机会提供一些特殊的硬件指令，允许对一个字中的内容进行检测和修正，或者对两个字的内容进行交换；对临界区的管理，可以视为对“锁”的管理：当“锁”开的时候，就允许进入，然后把“锁”关上；当“锁”关上的时候，就只能在外面等待；显然，对“锁”的检测（相当于进入区代码）和打开“锁”（相当于临界区）的操作必须是连续的；常见的硬件同步机制有：</p>
+<p><strong>关中断</strong></p>
+<p>是实现互斥的最简单方法之一。在进入锁检测之前，关闭中断，直到完成锁检测并上锁之后才打开中断。这样，进程在临界区执行期间，计算机系统不响应中断，从而不会引发调度，自然不会发生进程或者线程切换。但是关中断的方法有许多缺点：</p>
+<ul>
+<li>滥用关中断权利，可能会造成严重后果；</li>
+<li>关中断时间过长，会影响系统效率，限制处理器交叉执行程序的能力；</li>
+<li>关中断的方法不适合多CPU系统；</li>
+</ul>
+<p><strong>Test-and-Set</strong></p>
+<p>TS指令的一般描述如下：</p>
+<pre><code>boolean TS(boolean *lock){
+    boolean old;
+    old=*lock;
+    *lock=true;
+    return old;
+}
+相应的进入区代码为：
+while(TS(&amp;lock));
+</code></pre>
+<p>TS指令中，当lock为false时，就将其设置为true，然后返回false;当lock为true时，就返回true；返回false表示资源可用；返回true表示资源不可用；</p>
+<p>上面这段代码实现的功能：如果lock为false，那么设置它为true，但是要返回false；如果lock为true，不做改变，那么仍旧返回true；但实际上，它是这么做的：不论lock是什么，都把它设置为true。而返回它原来的值；</p>
+<p><strong>Swap</strong></p>
+<pre><code>void Swap(boolean* lock,boolean* key){
+    	boolean temp=*lock;
+    	*lock=*key;
+    	*key=temp;
+}
+相应的进入区代码为：
+key=true;
+do{
+    Swap(&amp;lock,&amp;key);
+}while(key!=false);
+//进入临界区
+</code></pre>
+<p>Swap指令中，do-while循环中的退出条件是key为false ；而key为false 意味着lock为false，表示资源可用；当lock为true的时候，key就为true；那么循环就会一直进行下去；</p>
+<p>利用TS机制和Swap机制，都会让进程处于忙等状态，并不符合同步机制的要求；（准确的说，不是实现不了同步，而是效率不高，不太高效~）</p>
+<h3 id="1292-信号量同步机制">12.9.2. 信号量同步机制</h3>
+<p>信号量同步机制由Dijkstra（很厉害的大神，单源最短路劲算法就是他提出的）；信号量机制已被广泛应用到单处理机和多处理机系统以及计算机网络中；</p>
+<p><strong>整型信号量</strong></p>
+<p>整型信号量S表示资源数目，除初始化外，仅能通过两个标准的原子操作进行修改：wait(S)和signal(S)；这两个操作长期以来也别称为P、V操作；</p>
+<pre><code>wait(S){
+    while(S&lt;=0);
+    S--；
+}
+signal(S){
+    S++;
+}
+</code></pre>
+<p>其实问题就是，wait和signal两个原子操作仍旧会产生“忙等”——进程不断测试，一直问，你说烦不烦？</p>
+<p><strong>记录型信号量</strong></p>
+<p>记录型信号量机制是一种不存在忙等现象的进程同步机制；但是采取了让权等待策略后，就会有多个进程等待访问统一资源的情况，于是还需要把这些进城组织起来，于是除了S用来表示资源的数量外，还需要一个指针；这也是记录型信号量的名称来源：使用了记录型的数据结构；</p>
+<pre><code>typedef struct{
+    int value;
+    sturct process_control_block *list;
+}semaphore;
+wait(semaphore *S){
+    S-&gt;value--;
+    if(S-&gt;value&lt;0){
+        block(S-&gt;list);
+    }
+}
+signal(semaphore *S){
+    S-&gt;value++;
+    if(S-&gt;value&lt;=0){
+        wakeup(S-&gt;list);
+    }
+}
+</code></pre>
+<p>记录型信号量中，value不仅指示资源的数量，由于每次wait操作value都会递减，所以value的值会反映出等待资源的进程有多少个。在signal中，value经过自增后，如果还&lt;=0，说明还有进程在等待该资源，所以需要wakeup一个进程。</p>
+<p><strong>AND型信号量</strong></p>
+<p>前面所述的进程互斥问题针对的是多个并发进程共享一个临界资源的情况，但是如果<strong>多个进程共享多个资源</strong>时仍旧采取这样单个的分配方法，就有可能发生死锁现象；为了避免这样的现象，提出来AND型信号量：将进程在整个运行过程中需要的所有资源，要么一次性全部分配给进程，然后使用完后再一起释放。要么一个都不分配，这样便可以避免死锁现象。wait和signal操作要做出相应改变。</p>
+<pre><code>Swait(S1,S2,S3,S4,S5....){
+	while(true){
+        if(S1&gt;=1&amp;&amp;S2&gt;=1...){
+       		for(i=1;i&lt;=n;i++){
+            	Si--;
+        	}
+        	break;
+    	}else{
+            //找到第一个小于等于0的Si,然后将进程放置到与其相关的等待队列中
+    	}
+	}
+}
+Ssignal(S1,S2...Sn){
+    while(true){
+        for(i=0;i&lt;=n;i++){
+            Si++;
+            //唤醒一个等待Si资源的进程——该进程将进入Swait中的while循环里继续判断其他资源是否可用。
+        }
+    }
+}
+</code></pre>
+<p><strong>信号量集</strong></p>
+<p>前面介绍的几种信号量同步机制都是对某一资源进行一个单位的申请和释放。当一次需要N个的时候，就需要进行N次请求，这不但低效而且容易发生死锁情况；还有些情况下，为了保证系统的安全性，当所申请的资源低于某个值时，就需要停止对该类资源的分配。解决办法就是当进程申请某类临界资源时，都必须测试资源的数量，判断是否大于可分配的下限值，然后决定是否分配；</p>
+<p>基于上述提到的两点问题，需要对AND信号量机制加以扩充，对进程所申请的所有资源以及每类资源不同的资源需求量，再一次PV原语操作中完成申请和释放。对信号量Si的测试值不再是1，而是ti。当Si&lt;=ti时就不再分配；同时，进程需要传递给wait方法每类资源所需要的数目，由此形成一般化的“信号量集”机制；</p>
+<pre><code>Swait(S1,t1,d1....Sn,tn,dn);表示对Si类资源的需求是di个，当Si的数量小于ti时就不再分配；
+Ssignal(S1,d1....Sn,dn);表示归还Si类资源的数目是di个；
+</code></pre>
+<p>特殊的，Swait(S,d,d)表示信号量集中只有一个信号量；它允许每次申请d个资源，当资源数量小于d时不予分配；</p>
+<p>Swait(S,1,1)表示普通的一般记录型信号量；</p>
+<p><strong>信号量的应用</strong></p>
+<p>实现进程互斥：基本操作；<br>
+实现前驱关系：当进程A中的X1操作结束后才进行进程B中的X2操作，像这种需求即为前驱关系。可以设置一种虚拟的资源S，并设置其状态为不可用，然后在X1的后面加上signal(S)，在X2语句前加上wait（S），以此实现这种执行顺序上的控制；</p>
+<h3 id="1293-管程机制">12.9.3. 管程机制</h3>
+<p>信号量机制虽然是一种既方便又实用的进程同步机制，但是要访问临界资源的进程需要自备同步操作wait（S）和signal(S)，这就使得对共享资源进行访问的代码遍布各个进程，不利于系统管理，还增加系统死锁的风险；管程机制是一种解决该问题的方法；</p>
+<p>操作系统的作用之一就是实现对计算机系统资源的抽象，管程机制使用少量的信息和对该资源所执行的操作来表征该资源，所以共享系统资源就变为了共享数据结构，并将对这些共享数据结构的操作定义为一组过程。进程对共享资源的申请、释放和其他操作必须通过这组过程。代表共享资源的数据结构以及由对该共享数据结构实施操作的一组过程所组成的资源管理程序共同构成了一个操作系统的资源管理模块，我们称之为管程；</p>
+<p>管程由四部分组成：名称、局部于管程的共享数据结构说明、对该数据结构进行操作的一组过程、对局部于管程的共享数据结构设置初始值的语句；</p>
+<p>所有进程访问临界资源时，都只能通过管程间接访问，而管程每次只准许一个进程进入管程，从而实现互斥。管程体现了面向对象程序设计的思想；具有：模块化，即管程是一个独立的基本单位，可单独编译；抽象数据类型，不仅有数据还有对数据的操作；信息隐蔽，管程中的数据结构只能被管程中的过程访问，这些过程也是在管程内部定义的，而管程之外的进程只需调用而无需了解其内部的具体实现细节。（这样，原来遍布系统的共享资源的访问代码，就集中到管程中啦）；</p>
+<p><strong>管程和进程的对比</strong></p>
+<p>两者都定义了各自的数据结构，但是管程定义的数据结构是对公用资源的抽象，进程定义的是私有数据结构PCB；<br>
+两者都有对各自数据结构的操作，但是管程的操作是为了实现同步和初始化，进程是由顺序程序执行有关操作；<br>
+进程的目的是在于实现系统的并发，而管程的目的是解决共享资源的互斥访问；<br>
+进程是主动工作的，管程需要被其他程序使用，属于被动工作的；<br>
+进程有动态性，管程是操作系统中的一个资源管理模块；</p>
+<p>管程中还有一个比较重要的概念就是条件变量。当一个进程进入了管程但在管程中被阻塞或者挂起，此时该进程需要释放对管程的占有，并且根据阻塞或者挂起的原因，也就是条件变量，进入相应的等待队列，等待其他进程的唤醒。条件变量x具有两种操作：x.wait()和x.signal()；</p>
+<p>x.wait()：正在调用管程的进程因x条件而需要被挂起或者阻塞，则调用x.wait()将自己插入到条件变量x的等待队列上并释放管程，直到x条件变化；</p>
+<p>x.signal()：正在调用管程的进程发现x条件发生了变化，重新启动一个因x而阻塞的进程，如果有多个进程因x而阻塞，也只能选择一个；</p>
+<p>如果进程Q因为x条件而处于阻塞状态，当P调用管程时，执行了x.signal()操作后，Q重新启动，此时P和Q到底谁来继续拥有管程呢？答案是两者均可；</p>
+<h2 id="1210-进程通信">12.10. 进程通信</h2>
+<p>进程通信，是指进程之间的信息交换（信息量少则一个状态或数值，多者则是成千上万个字节）。因此，对于用信号量进行的进程间的互斥和同步，由于其所交换的信息量少而被归结为低级通信</p>
+<p>所谓高级进程通信指：用户可以利用操作系统所提供的一组通信命令传送大量数据的一种通信方式。操作系统隐藏了进程通信的实现细节。或者说，通信过程对用户是透明的</p>
+<p>高级通信机制可归结为三大类：</p>
+<ul>
+<li>
+<p>共享存储器系统（存储器中划分的共享存储区）；实际操作中对应的是“剪贴板”（windows剪贴板实际上是系统维护管理的一块内存区域）的通信方式。</p>
+</li>
+<li>
+<p>消息传递系统（进程间的数据交换以消息（message）为单位，当今最流行的微内核操作系统中，微内核与服务器之间的通信，无一例外地都采用了消息传递机制。应用举例：邮槽（MailSlot）是基于广播通信体系设计出来的，它采用无连接的不可靠的数据传输。邮槽是一种单向通信机制，创建邮槽的服务器进程读取数据，打开邮槽的客户机进程写入数据</p>
+</li>
+<li>
+<p>管道通信系统（管道即：连接读写进程以实现他们之间通信的共享文件（pipe文件，类似先进先出的队列，由一个进程写，另一进程读））。实际操作中，管道分为：匿名管道、命名管道。</p>
+<ul>
+<li>匿名管道是一个未命名的、单向管道，通过父进程和一个子进程之间传输数据。匿名管道只能实现本地机器上两个进程之间的通信，而不能实现跨网络的通信。</li>
+<li>命名管道不仅可以在本机上实现两个进程间的通信，还可以跨网络实现两个进程间的通信</li>
+</ul>
+</li>
+<li>
+<p>管道：管道是单向的、先进先出的、无结构的、固定大小的字节流，它把一个进程的标准输出和另一个进程的标准输入连接在一起。写进程在管道的尾端写入数据，读进程在管道的道端读出数据。数据读出后将从管道中移走，其它读进程都不能再读到这些数据。管道提供了简单的流控制机制。进程试图读空管道时，在有数据写入管道前，进程将一直阻塞。同样地，管道已经满时，进程再试图写管道，在其它进程从管道中移走数据之前，写进程将一直阻塞。管道可用于具有亲缘关系的父子进程间的通信，有名管道除了具有管道所具有的功能外，它还允许无亲缘关系进程间的通信；</p>
+</li>
+<li>
+<p>信号（signal）：信号是一种比较复杂的通信方式，用于通知接收进程某个事件已经发生，调用特定的函数处理；</p>
+</li>
+<li>
+<p>信号量：信号量是一个计数器，可以用来控制多个进程对共享资源的访问。它常作为一种锁机制，防止某进程正在访问共享资源时，其它进程也访问该资源。因此，主要作为进程间以及同一进程内不同线程之间的同步手段</p>
+</li>
+<li>
+<p>消息队列：是一个在系统内核中用来保存消 息的队列，它在系统内核中是以消息链表的形式出现的。消息队列克服了信号传递信息少、管道只能承载无格式字节流以及缓冲区大小受限等缺点</p>
+</li>
+<li>
+<p>共享内存：共享内存允许两个或多个进程访问同一个逻辑内存。这一段内存可以被两个或两个以上的进程映射至自身的地址空间中，一个进程写入共享内存的信息，可以被其他使用这个共享内存的进程，通过一个简单的内存读取读出，从而实现了进程间的通信。如果某个进程向共享内存写入数据，所做的改动将立即影响到可以访问同一段共享内存的任何其他进程。共享内存是最快的IPC方式，它是针对其它进程间通信方式运行效率低而专门设计的。它往往与其它通信机制（如信号量）配合使用，来实现进程间的同步和通信</p>
+</li>
+<li>
+<p>套接字：套接字也是一种进程间通信机制，与其它通信机制不同的是，它可用于网络中不同机器间的进程通信</p>
+</li>
+</ul>
+<h2 id="1211-线程同步的方式">12.11. 线程同步的方式</h2>
+<ul>
+<li>互斥量 Synchronized/Lock：采用互斥对象机制，只有拥有互斥对象的线程才有访问公共资源的权限。因为互斥对象只有一个，所以可以保证公共资源不会被多个线程同时访问</li>
+<li>信号量 Semphare：它允许同一时刻多个线程访问同一资源，但是需要控制同一时刻访问此资源的最大线程数量</li>
+<li>事件(信号)，Wait/Notify：通过通知操作的方式来保持多线程同步，还可以方便的实现多线程优先级的比较操作</li>
+</ul>
+<h2 id="1212-死锁">12.12. 死锁</h2>
+<h3 id="12121-死锁的概念">12.12.1. 死锁的概念</h3>
+<p>在两个或者多个并发进程中，如果每个进程持有某种资源而又等待其它进程释放它或它们现在保持着的资源，在未改变这种状态之前都不能向前推进，称这一组进程产生了死锁。通俗的讲，就是两个或多个进程无限期的阻塞、相互等待的一种状态。</p>
+<h3 id="12122-死锁产生的四个必要条件">12.12.2. 死锁产生的四个必要条件</h3>
+<ul>
+<li>互斥：至少有一个资源必须属于非共享模式，即一次只能被一个进程使用；若其他申请使用该资源，那么申请进程必须等到该资源被释放为止；</li>
+<li>占有并等待：一个进程必须占有至少一个资源，并等待另一个资源，而该资源为其他进程所占有；</li>
+<li>非抢占：进程不能被抢占，即资源只能被进程在完成任务后自愿释放</li>
+<li>循环等待：若干进程之间形成一种头尾相接的环形等待资源关系</li>
+</ul>
+<h3 id="12123-死锁的处理">12.12.3. 死锁的处理</h3>
+<p>解决死锁的基本方法主要有 预防死锁、避免死锁、检测死锁、解除死锁 、鸵鸟策略 等。</p>
+<ol>
+<li>死锁预防<br>
+　　<br>
+　　死锁预防的基本思想是 只要确保死锁发生的四个必要条件中至少有一个不成立，就能预防死锁的发生，具体方法包括：</li>
+</ol>
+<ul>
+<li>打破互斥条件：允许进程同时访问某些资源。但是，有些资源是不能被多个进程所共享的，这是由资源本身属性所决定的，因此，这种办法通常并无实用价值。</li>
+<li>打破占有并等待条件：可以实行资源预先分配策略(进程在运行前一次性向系统申请它所需要的全部资源，若所需全部资源得不到满足，则不分配任何资源，此进程暂不运行；只有当系统能满足当前进程所需的全部资源时，才一次性将所申请资源全部分配给该线程)或者只允许进程在没有占用资源时才可以申请资源（一个进程可申请一些资源并使用它们，但是在当前进程申请更多资源之前，它必须全部释放当前所占有的资源）。但是这种策略也存在一些缺点：在很多情况下，无法预知一个进程执行前所需的全部资源，因为进程是动态执行的，不可预知的；同时，会降低资源利用率，导致降低了进程的并发性。</li>
+<li>打破非抢占条件：允许进程强行从占有者哪里夺取某些资源。也就是说，但一个进程占有了一部分资源，在其申请新的资源且得不到满足时，它必须释放所有占有的资源以便让其它线程使用。这种预防死锁的方式实现起来困难，会降低系统性能。</li>
+<li>打破循环等待条件：实行资源有序分配策略。对所有资源排序编号，所有进程对资源的请求必须严格按资源序号递增的顺序提出，即只有占用了小号资源才能申请大号资源，这样就不回产生环路，预防死锁的发生。</li>
+</ul>
+<ol start="2">
+<li>死锁避免　<br>
+　　动态地检测资源分配状态，以确保系统处于安全状态，只有处于安全状态时才会进行资源的分配。所谓安全状态是指：即使所有进程突然请求需要的所有资源，也能存在某种对进程的资源分配顺序，使得每一个进程运行完毕。</li>
+<li>死锁检测<br>
+检测有向图是否存在环；或者使用类似死锁避免的检测算法。</li>
+<li>死锁解除<br>
+　　死锁解除的常用两种方法为进程终止和资源抢占。所谓进程终止是指简单地终止一个或多个进程以打破循环等待，包括两种方式：终止所有死锁进程和一次只终止一个进程直到取消死锁循环为止；所谓资源抢占是指从一个或多个死锁进程那里抢占一个或多个资源，此时必须考虑三个问题：</li>
+</ol>
+<ul>
+<li>利用抢占：挂起某些进程，并抢占它的资源。但应防止某些进程被长时间挂起而处于饥饿状态；</li>
+<li>利用回滚：让某些进程回退到足以解除死锁的地步，进程回退时自愿释放资源。要求系统保持进程的历史信息，设置还原点；</li>
+<li>利用杀死进程：强制杀死某些进程直到死锁解除为止，可以按照优先级进行。</li>
+</ul>
+<h2 id="1213-进程状态">12.13. 进程状态</h2>
+<ul>
+<li>就绪状态：进程已获得除处理机以外的所需资源，等待分配处理机资源；</li>
+<li>运行状态：占用处理机资源运行，处于此状态的进程数小于等于CPU数；</li>
+<li>阻塞状态： 进程等待某种条件，在条件满足之前无法执行；<br>
+<img src="https://memorykki.github.io/post-images/os-interview/i1.jpg" alt="" loading="lazy"></li>
+</ul>
+<h2 id="1214-线程状态">12.14. 线程状态</h2>
+<p>在 Java虚拟机 中，线程从最初的创建到最终的消亡，要经历若干个状态：创建(new)、就绪(runnable/start)、运行(running)、阻塞(blocked)、等待(waiting)、时间等待(time waiting) 和 消亡(dead/terminated)。在给定的时间点上，一个线程只能处于一种状态，各状态的含义如下图所示：<br>
+　　　　　　　　　　<br>
+　　线程各状态之间的转换如下：<br>
+<img src="https://memorykki.github.io/post-images/os-interview/i2.jpg" alt="" loading="lazy"></p>
+<h2 id="1215-进程调度">12.15. 进程调度</h2>
+<p><strong>调度种类</strong></p>
+<ul>
+<li>高级调度：(High-Level Scheduling)又称为作业调度，它决定把后备作业调入内存运行</li>
+<li>中级调度：(Intermediate-Level Scheduling)交换调度。又称为在虚拟存储器中引入，在内、外存对换区进行进程对换</li>
+<li>低级调度：(Low-Level Scheduling)又称为进程调度，它决定就绪队列的某进程获得CPU</li>
+<li>线程调度</li>
+</ul>
+<p><strong>非抢占式调度与抢占式调度</strong></p>
+<ul>
+<li>非抢占式：分派程序一旦把处理机分配给某进程后便让它一直运行下去，直到进程完成或发生进程调度进程调度某事件而阻塞时，才把处理机分配给另一个进程</li>
+<li>抢占式：操作系统将正在运行的进程强行暂停，由调度程序将CPU分配给其他就绪进程的调度方式</li>
+</ul>
+<p><strong>调度算法</strong></p>
+<ul>
+<li>FIFO或First Come, First Served (FCFS)先来先服务</li>
+</ul>
+<p>调度的顺序就是任务到达就绪队列的顺序<br>
+公平、简单(FIFO队列)、非抢占、不适合交互式<br>
+未考虑任务特性，平均等待时间可以缩短</p>
+<ul>
+<li>Shortest Job First (SJF)</li>
+</ul>
+<p>最短的作业(CPU区间长度最小)最先调度<br>
+SJF可以保证最小的平均等待时间，但难以知道下一个CPU区间长度</p>
+<ul>
+<li>Shortest Remaining Job First (SRJF)</li>
+</ul>
+<p>SJF的可抢占版本，比SJF更有优势<br>
+SJF(SRJF): 如何知道下一CPU区间大小？根据历史进行预测: 指数平均法</p>
+<ul>
+<li>优先权调度</li>
+</ul>
+<p>每个任务关联一个优先权，调度优先权最高的任务<br>
+注意：优先权太低的任务一直就绪，得不到运行，出现“饥饿”现象</p>
+<ul>
+<li>Round-Robin(RR)轮转调度算法</li>
+</ul>
+<p>设置一个时间片，按时间片来轮转调度（“轮叫”算法）<br>
+优点: 定时有响应，等待时间较短；缺点: 上下文切换次数较多<br>
+时间片太大，响应时间太长；吞吐量变小，周转时间变长；当时间片过长时，退化为FCFS</p>
+<ul>
+<li>多级队列调度</li>
+</ul>
+<p>按照一定的规则建立多个进程队列，一个进程根据自身属性被永久地分配到一个队列中。<br>
+不同的队列有固定的优先级（高优先级有抢占权）<br>
+不同的队列可以给不同的时间片和采用不同的调度方法<br>
+存在问题1：没法区分I/O bound和CPU bound<br>
+存在问题2：也存在一定程度的“饥饿”现象</p>
+<ul>
+<li>多级反馈队列</li>
+</ul>
+<p>在多级队列的基础上，任务可以在队列之间移动，更细致的区分任务<br>
+可以根据“享用”CPU时间多少来移动队列，阻止“饥饿”<br>
+最通用的调度算法，多数OS都使用该方法或其变形，如UNIX、Windows等<br>
+若进程使用过多CPU时间，那么它会被转移到更低的优先级队列；在较低优先级队列等待时间过长的进程会被转移到更高优先级队列，以防止饥饿发生。</p>
+<h2 id="1216-虚拟内存">12.16. 虚拟内存</h2>
+<ol>
+<li>内存的发展历程<br>
+　　没有内存抽象(单进程，除去操作系统所用的内存之外，全部给用户程序使用) —&gt; 有内存抽象（多进程，进程独立的地址空间，交换技术(内存大小不可能容纳下所有并发执行的进程)—&gt; 连续内存分配(固定大小分区(多道程序的程度受限)，可变分区(首次适应，最佳适应，最差适应)，碎片) —&gt; 不连续内存分配（分段，分页，段页式，虚拟内存）</li>
+<li>虚拟内存<br>
+　　虚拟内存允许执行进程不必完全在内存中。虚拟内存的基本思想是：每个进程拥有独立的地址空间，这个空间被分为大小相等的多个块，称为页(Page)，每个页都是一段连续的地址。这些页被映射到物理内存，但并不是所有的页都必须在内存中才能运行程序。当程序引用到一部分在物理内存中的地址空间时，由硬件立刻进行必要的映射；当程序引用到一部分不在物理内存中的地址空间时，由操作系统负责将缺失的部分装入物理内存并重新执行失败的命令。这样，对于进程而言，逻辑上似乎有很大的内存空间，实际上其中一部分对应物理内存上的一块(称为帧，通常页和帧大小相等)，还有一些没加载在内存中的对应在硬盘上，如图5所示。<br>
+注意，请求分页系统、请求分段系统和请求段页式系统都是针对虚拟内存的，通过请求实现内存与外存的信息置换。</li>
+</ol>
+<p><img src="https://memorykki.github.io/post-images/os-interview/i3.jpg" alt="" loading="lazy">　　<br>
+　　由图5可以看出，虚拟内存实际上可以比物理内存大。当访问虚拟内存时，会访问MMU（内存管理单元）去匹配对应的物理地址（比如图5的0，1，2）。如果虚拟内存的页并不存在于物理内存中（如图5的3,4），会产生缺页中断，从磁盘中取得缺的页放入内存，如果内存已满，还会根据某种算法将磁盘中的页换出。<br>
+3. 虚拟内存的应用与优点<br>
+　　虚拟内存很适合在多道程序设计系统中使用，许多程序的片段同时保存在内存中。当一个程序等待它的一部分读入内存时，可以把CPU交给另一个进程使用。虚拟内存的使用可以带来以下好处：</p>
+<ul>
+<li>在内存中可以保留多个进程，系统并发度提高</li>
+<li>解除了用户与内存之间的紧密约束，进程可以比内存的全部空间还大</li>
+</ul>
+<ol start="4">
+<li>抖动<br>
+　　抖动本质上是指频繁的页调度行为，具体来讲，进程发生缺页中断，这时，必须置换某一页。然而，其他所有的页都在使用，它置换一个页，但又立刻再次需要这个页。因此，会不断产生缺页中断，导致整个系统的效率急剧下降，这种现象称为颠簸（抖动）。<br>
+　　内存颠簸的解决策略包括：<br>
+如果是因为页面替换策略失误，可以修改替换算法来解决这个问题；<br>
+如果是因为运行的程序太多，造成程序无法同时将所有频繁访问的页面调入内存，则要降低多道程序的数量；<br>
+否则，还剩下两个办法：终止该进程或增加物理内存容量。</li>
+</ol>
+<h2 id="1217-分页和分段">12.17. 分页和分段</h2>
+<p>段式存储管理是一种符合用户视角的内存分配管理方案。在段式存储管理中，将程序的地址空间划分为若干段（segment），如代码段，数据段，堆栈段；这样每个进程有一个二维地址空间，相互独立，互不干扰。段式管理的优点是：没有内碎片（因为段大小可变，改变段大小来消除内碎片）。但段换入换出时，会产生外碎片（比如4k的段换5k的段，会产生1k的外碎片）<br>
+　　页式存储管理方案是一种用户视角内存与物理内存相分离的内存分配管理方案。在页式存储管理中，将程序的逻辑地址划分为固定大小的页（page），而物理内存划分为同样大小的帧，程序加载时，可以将任意一页放入内存中任意一个帧，这些帧不必连续，从而实现了离散分离。页式存储管理的优点是：没有外碎片（因为页的大小固定），但会产生内碎片（一个页可能填充不满）。<br>
+<strong>区别</strong></p>
+<ul>
+<li>目的不同：分页是由于系统管理的需要而不是用户的需要，它是信息的物理单位；分段的目的是为了能更好地满足用户的需要，它是信息的逻辑单位，它含有一组其意义相对完整的信息；</li>
+<li>大小不同：页的大小固定且由系统决定，而段的长度却不固定，由其所完成的功能决定；</li>
+<li>地址空间不同： 段向用户提供二维地址空间；页向用户提供的是一维地址空间；</li>
+<li>信息共享：段是信息的逻辑单位，便于存储保护和信息的共享，页的保护和共享受到限制；</li>
+<li>内存碎片：页式存储管理的优点是没有外碎片（因为页的大小固定），但会产生内碎片（一个页可能填充不满）；而段式管理的优点是没有内碎片（因为段大小可变，改变段大小来消除内碎片）。但段换入换出时，会产生外碎片（比如4k的段换5k的段，会产生1k的外碎片）。</li>
+</ul>
+<h2 id="1218-页面置换算法">12.18. 页面置换算法</h2>
+<p>在程序运行过程中，如果要访问的页面不在内存中，就发生缺页中断从而将该页调入内存中。此时如果内存已无空闲空间，系统必须从内存中调出一个页面到磁盘中来腾出空间。页面置换算法的主要目标是使页面置换频率最低（也可以说缺页率最低）。</p>
+<ul>
+<li>最佳页面置换算法OPT（Optimal replacement algorithm）：置换以后不需要或者最远的将来才需要的页面，是一种理论上的算法，是最优策略；</li>
+<li>先进先出FIFO：置换在内存中驻留时间最长的页面。缺点：有可能将那些经常被访问的页面也被换出，从而使缺页率升高；</li>
+<li>二次机会算法SCR：按FIFO选择某一页面，若其访问位为1，给第二次机会，并将访问位置0；</li>
+<li>时钟算法 Clock：SCR中需要将页面在链表中移动（第二次机会的时候要将这个页面从链表头移到链表尾），时钟算法使用环形链表，再使用一个指针指向最老的页面，避免了移动页面的开销；</li>
+<li>最近未使用算法NRU（Not Recently Used）：检查访问位R、修改位M，优先置换R=M=0，其次是（R=0, M=1）；</li>
+<li>最近最少使用算法LRU（Least Recently Used）：置换出未使用时间最长的一页；实现方式：维护时间戳，或者维护一个所有页面的链表。当一个页面被访问时，将这个页面移到链表表头。这样就能保证链表表尾的页面是最近最久未访问的。</li>
+<li>最不经常使用算法NFU：置换出访问次数最少的页面</li>
+</ul>
+<h2 id="1219-局部性原理">12.19. 局部性原理</h2>
+<ul>
+<li>时间上的局部性：最近被访问的页在不久的将来还会被访问；</li>
+<li>空间上的局部性：内存中被访问的页周围的页也很可能被访问。</li>
+</ul>
+<h1 id="13-参考链接">13. 参考链接</h1>
+<ul>
+<li><a href="https://blog.csdn.net/weixin_44751294?spm=1001.2014.3001.5509">CSDN-Clichong</a></li>
+<li><a href="https://blog.csdn.net/justloveyou_/article/details/78304294">面试/笔试第二弹 —— 操作系统面试问题集锦</a></li>
+<li><a href="https://blog.csdn.net/qq_41371349/article/details/108042666">【操作系统】死等状态、忙等状态、有限等待、让权等待</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/86629244">操作系统面试题目总结</a></li>
+<li><a href="https://blog.csdn.net/qq_29996285/article/details/88078906">面试考点——用户态和内核态的区别</a></li>
+<li><a href="https://blog.csdn.net/slx3320612540/article/details/80726305">操作系统之进程同步和通信——进程同步的基本概念及其实现方式、进程通信及其实现方式</a></li>
+<li><a href="https://www.nowcoder.com/discuss/22395">面试CS基础之操作系统</a></li>
+</ul>
+<br />
+                  
+              </p>
+            </div>
+            <div class="post_footer">
+              
+                <div class="meta">
+                  <div class="info">
+                    <span class="field tags">
+                      <i class="iconfont icon-tag-sm"></i>
+                      
+                      <a href="https://memorykki.github.io/os/" class="article-info">
+                        OS</a>
+                      </span>
+                  </div>
+                </div>
+                
+              
+                <div class="next-post" style="margin-top: 20px;">
+                  <div class="next">下一篇</div>
+                  <a href="https://memorykki.github.io/os/">
+                    <h3 class="post-title">
+                      操作系统引论
+                    </h3>
+                  </a>
+                </div>
+                
+            </div>
+          </div>
+          
+          
+          
+              <div id="vcomments"></div>
+              <script>
+                  new Valine({
+                      el: '#vcomments',
+                      appId: 'krF0ARJcxpFRANhJvt8eQvzB-gzGzoHsz',
+                      appKey: 'jNyN9UuoDD1qPl7aXI4bLWYU'
+                  })
+              </script>
+          
+
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer">
+    <div class="footer_slogan">
+        
+    </div>
+
+    
+
+    <p>
+Powered by<a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+Theme<a href="https://github.com/kytrun/gridea-theme-one" target="_blank">One</a>
+<br>
+© 2020-2022<a href="https://memorykk.cn" target="_blank">Memorykk</a>
+<a href="http://beian.miit.gov.cn" target="_blank">陕ICP备20005895号-1</a>
+</p>
+    
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+        <p>
+            user: <span id="busuanzi_value_site_uv"></span> site: <span id="busuanzi_value_site_pv"></span> page:
+            <span id="busuanzi_value_page_pv"></span>
+        </p>
+    
+</div>
+
+
+
+<script src="https://memorykki.github.io/media/scripts/util.js"></script>
+
+
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release/build/styles/default.min.css">
+  <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release/build/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad();
+    $(function() {
+        $("#toc").tocify({ selectors: "h2, h3, h4" });
+    });
+  </script>
+</body>
+
+</html>

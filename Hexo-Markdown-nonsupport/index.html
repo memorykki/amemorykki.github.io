@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<title>Hexo中Markdown语法失效问题 | Memorykk&#39;s blog</title>
+<link rel="shortcut icon" href="https://memorykki.github.io/favicon.ico">
+<link href="https://memorykki.github.io/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_ntebi130zaa.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Memorykk&#39;s blog » Feed" href="https://memorykki.github.io/atom.xml">
+
+
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-61KQ1XYC4T"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-61KQ1XYC4T');
+  </script>
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?b89f2652bbc909bb41e06c21123d1797";
+      var s = document.getElementsByTagName("script")[0]; 
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+    <script src='//unpkg.com/valine/dist/Valine.min.js'></script>
+
+  <meta name="description" content="在Hexo站上用Markdown写博时发现好多语法失效问题，记录一下
+
+
+目录
+
+1.表格直接以源码显示无渲染
+2.&lt;kbd&gt;无样式
+3.插入&lt;table&gt;不渲染
+4.插入HTML标签产生大量换行
+5.目录跳转无反应..." />
+  <meta name="keywords" content="Hexo,Markdown" />
+
+  <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/2.3.1/css/bootstrap.css" rel="stylesheet">
+  <link href="https://memorykki.github.io/media/css/jquery.tocify.css" rel="stylesheet">
+
+  <script src="https://cdn.bootcdn.net/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+  <script src="https://memorykki.github.io/media/scripts/jquery.ui.core.js"></script>
+  <script src="https://memorykki.github.io/media/scripts/bootstrap.js"></script>
+  <script src="https://memorykki.github.io/media/scripts/jquery.tocify.js"></script>
+
+  <style>
+    #toc .nav-list > .active > a{
+      border: 1px solid #000;
+      border-radius: 10px;
+      background-color: unset;
+    }
+    #toc a {
+      color: #000000;
+    }
+    #toc {
+      border: 0;
+    }
+  </style>
+</head>
+
+<body style="height: auto">
+  <div id="toc" style="right: 20px; top: 80px"></div>
+  <div class="main animated">
+    <div class="header animated fadeInDown">
+  <div class="site_title_container">
+    <div class="site_title">
+      <a href="https://memorykki.github.io">
+        Memorykk&#39;s blog
+      </a>
+    </div>
+  </div>
+  <div class="my_socials">
+    
+      <a href="mailto:memorykki@gmail.com">
+        <i class="iconfont"><svg t="1672505472759" class="icon" viewBox="-400 -400 1600 1600" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="656" width="25" height="25"><path d="M741.12 305.737143H276.114286L511.817143 528.457143z" fill="#606060" p-id="657"></path><path d="M524.8 566.857143a18.651429 18.651429 0 0 1-25.417143 0.182857l-62.72-59.245714L256 668.525714v49.737143h512v-49.737143l-181.577143-161.645714L524.8 566.857143zM256 337.005714v282.514286l153.965714-136.96zM768 619.52V330.788571l-155.245714 150.491429z" fill="#606060" p-id="658"></path><path d="M512 9.142857C234.24 9.142857 9.142857 234.24 9.142857 512S234.24 1014.857143 512 1014.857143 1014.857143 789.76 1014.857143 512 789.76 9.142857 512 9.142857z m292.571429 727.405714c0 10.057143-8.228571 18.285714-18.285715 18.285715H237.714286c-10.057143 0-18.285714-8.228571-18.285715-18.285715V287.451429c0-10.057143 8.228571-18.285714 18.285715-18.285715h548.571428c10.057143 0 18.285714 8.228571 18.285715 18.285715v449.097142z" fill="#606060" p-id="659"></path></svg></i>
+      </a>
+    
+
+    
+      
+        <a href="https://github.com/memorykki" target="_blank">
+          <i class="iconfont icon-github"></i>
+        </a>
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+    <a href="https://memorykki.github.io/atom.xml" target="_blank">
+      <i class="iconfont icon-rss"></i>
+    </a>
+  </div>
+</div>
+
+<div class="header_menu">
+  
+  
+  <a href="/" class="menu">Index</a>
+  
+
+  
+  <a href="/archives" class="menu">Archives</a>
+  
+
+  
+  <a href="/tags" class="menu">Tags</a>
+  
+
+  
+  <a href="/about" class="menu">About</a>
+  
+
+  <div class="gridea-search-div">
+    <form id="gridea-search-form" action="https://memorykki.github.io/search/">
+      <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q" />
+    </form>
+  </div>
+</div>
+
+    <div class="autopagerize_page_element">
+      <div class="content">
+        <div class="post_page">
+          <div class="post animated fadeInDown">
+            <div class="post_title post_detail_title">
+              <h1 class="indicator-free">
+                <a>
+                  Hexo中Markdown语法失效问题</a>
+              </h2>
+              <span class="article-info">2021-02-13, 808 words, 4 min read</span>
+            </div>
+            <div class="post_content markdown">
+              <p class="md_block">
+                <span class="md_line md_line_start md_line_end">
+                  <p>在Hexo站上用Markdown写博时发现好多语法失效问题，记录一下</p>
+<!-- more -->
+<hr>
+<p><strong>目录</strong></p>
+<ul>
+<li><a href="#1-%E8%A1%A8%E6%A0%BC%E7%9B%B4%E6%8E%A5%E4%BB%A5%E6%BA%90%E7%A0%81%E6%98%BE%E7%A4%BA%E6%97%A0%E6%B8%B2%E6%9F%93">1.表格直接以源码显示无渲染</a></li>
+<li><a href="#2-lt-kbd-gt-%E6%97%A0%E6%A0%B7%E5%BC%8F">2.&lt;kbd&gt;无样式</a></li>
+<li><a href="#3-%E6%8F%92%E5%85%A5-lt-table-gt-%E4%B8%8D%E6%B8%B2%E6%9F%93">3.插入&lt;table&gt;不渲染</a></li>
+<li><a href="#4-%E6%8F%92%E5%85%A5HTML%E6%A0%87%E7%AD%BE%E4%BA%A7%E7%94%9F%E5%A4%A7%E9%87%8F%E6%8D%A2%E8%A1%8C">4.插入HTML标签产生大量换行</a></li>
+<li><a href="#5-%E7%9B%AE%E5%BD%95%E8%B7%B3%E8%BD%AC%E6%97%A0%E5%8F%8D%E5%BA%94">5.目录跳转无反应</a></li>
+<li><a href="#%E6%80%BB%E7%BB%93">总结</a></li>
+</ul>
+<hr>
+<h2 id="1表格直接以源码显示无渲染">1.表格直接以源码显示无渲染</h2>
+<h3 id="问题">问题</h3>
+<p>| 左对齐 | 右对齐 | 居中对齐 |<br>
+| :----| ----: | :------: |<br>
+| 单元格aaaaaaaaaa | 单aaaaaaaaaaaaaa元格 | 单元aaaaaaaaaaa格 |<br>
+| 单元格 | 单元格 | 单元格 |<br>
+| 单 | 单 | 单 |</p>
+<h3 id="解决">解决</h3>
+<ul>
+<li>表格和正文之间空两行。</li>
+<li>Markdown中生成的表格十分简洁，这倒也符合快速的特点，如果想自定义样式，通过嵌入css实现，例如本例。</li>
+<li>我使用的Hacker主题，通用样式文件存放在themes\Hacker\source\css\base\normalize.css，对这种通用性的追加即可，其他主题同理。</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">居中对齐</th>
+<th style="text-align:right">对齐</th>
+<th style="text-align:center">居中对齐</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">单元格</td>
+<td style="text-align:right">单元格</td>
+<td style="text-align:center">单元格</td>
+</tr>
+<tr>
+<td style="text-align:left">单元格</td>
+<td style="text-align:right">单元格</td>
+<td style="text-align:center">单元格</td>
+</tr>
+<tr>
+<td style="text-align:left">单</td>
+<td style="text-align:right">单</td>
+<td style="text-align:center">单</td>
+</tr>
+</tbody>
+</table>
+<h3 id="待解决">待解决</h3>
+<p>表格正常显示之后，对齐方式却不生效，网上没找到和我一样问题的，不过这个需求也不大，或许只能通过css解决。</p>
+<h2 id="2kbd无样式">2.&lt;kbd&gt;无样式</h2>
+<h3 id="问题-2">问题</h3>
+<p>比如这个kbd标签，Ctrl ，看起来很不明显有没有，大概率本来就这样，但是我一开始希望它是这样：<block style="display:inline-block;">{% img /images/Hexo-Markdown-nonsupport/ctrl.PNG 50 50 '&quot;ctrl&quot; &quot;ctrl&quot;' %}</block></p>
+<blockquote>
+<p>提示: &lt;kbd&gt; 标签已废弃，不推荐使用，但是可以通过CSS实现丰富的效果。<br>
+------<a href="https://www.runoob.com/tags/tag-kbd.html">HTML&lt;kbd&gt;标签</a></p>
+</blockquote>
+<h3 id="解决-2">解决</h3>
+<p>因为我感觉这个会很常用，但我给它加了css样式，还不错。<kbd>Ctrl</kbd></p>
+<h2 id="3插入table不渲染">3.插入&lt;table&gt;不渲染</h2>
+<h3 id="问题-3">问题</h3>
+<p>我在HTML里面测试好table，再将整个&lt;table&gt;&lt;/table&gt;粘贴到VSC的md文件中，但是这时HTML标签不渲染，直接以源码显示。</p>
+<h3 id="解决-3">解决</h3>
+<ul>
+<li>先在md中手写&lt;table&gt;&lt;/table&gt;这两个标签，再将table里面的内容粘过去，不要开始和结束标签。</li>
+<li>或者可能是HTML代码中有空行！</li>
+</ul>
+<h2 id="4插入html标签产生大量换行">4.插入HTML标签产生大量换行</h2>
+<h3 id="问题-4">问题</h3>
+<p>插入HTML标签产生大量换行</p>
+<h3 id="解决-4">解决</h3>
+<p>将HTML标签之间的空格删除，也就是写到一行中。</p>
+<h2 id="5目录跳转无反应">5.目录跳转无反应</h2>
+<h3 id="问题-5">问题</h3>
+<p>因为本主题（或是别的问题）不会生成文章目录结构，所以我一般写完后用MarkdownAllinOne生成目录，但是点击无反应，不跳转。</p>
+<h3 id="解决-5">解决</h3>
+<ul>
+<li>
+<p>首先标题里不能有符号<br>
+如果标题为&quot;&amp;总结&quot;，但MarkdownAllinOne生成目录自动链接到&quot;#总结&quot;，Hexo渲染出的HTML源码却是：</p>
+<p><code>&lt;h2 id=&quot;amp-总结&quot;&gt;&lt;a href=&quot;#amp-总结&quot; class=&quot;headerlink&quot; title=&quot;&amp;amp;总结&quot;&gt;&lt;/a&gt;&amp;amp;总结&lt;/h2&gt;</code></p>
+<p>这样看来，&quot;#amp-总结&quot;才是正确跳转。</p>
+</li>
+<li>
+<p>若大小写原因，关闭MarkdownAllinOne扩展的自动转换小写选项<br>
+去<kbd>扩展设置</kbd>里关闭。</p>
+<figure data-type="image" tabindex="1"><img src="https://memorykki.github.io/post-images/Hexo-Markdown-nonsupport/mdPlugin1.PNG" alt="" loading="lazy"></figure>
+<p><em><strong>（！这不是必须的，只是为了方便，顺便关闭自动更新目录）</strong></em></p>
+<figure data-type="image" tabindex="2"><img src="https://memorykki.github.io/post-images/Hexo-Markdown-nonsupport/mdPlugin2.PNG" alt="" loading="lazy"></figure>
+</li>
+</ul>
+<h2 id="总结">总结</h2>
+<p>关键还得搞清楚Hexo生成的是静态页面这个大方向，然后根据自己想法发挥。</p>
+<br />
+                  
+              </p>
+            </div>
+            <div class="post_footer">
+              
+                <div class="meta">
+                  <div class="info">
+                    <span class="field tags">
+                      <i class="iconfont icon-tag-sm"></i>
+                      
+                      <a href="https://memorykki.github.io/hexo/" class="article-info">
+                        Hexo</a>
+                      
+                      <a href="https://memorykki.github.io/markdown/" class="article-info">
+                        Markdown</a>
+                      </span>
+                  </div>
+                </div>
+                
+              
+                <div class="next-post" style="margin-top: 20px;">
+                  <div class="next">下一篇</div>
+                  <a href="https://memorykki.github.io/Markdown/">
+                    <h3 class="post-title">
+                      Markdown
+                    </h3>
+                  </a>
+                </div>
+                
+            </div>
+          </div>
+          
+          
+          
+              <div id="vcomments"></div>
+              <script>
+                  new Valine({
+                      el: '#vcomments',
+                      appId: 'krF0ARJcxpFRANhJvt8eQvzB-gzGzoHsz',
+                      appKey: 'jNyN9UuoDD1qPl7aXI4bLWYU'
+                  })
+              </script>
+          
+
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer">
+    <div class="footer_slogan">
+        
+    </div>
+
+    
+
+    <p>
+Powered by<a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+Theme<a href="https://github.com/kytrun/gridea-theme-one" target="_blank">One</a>
+<br>
+© 2020-2022<a href="https://memorykk.cn" target="_blank">Memorykk</a>
+<a href="http://beian.miit.gov.cn" target="_blank">陕ICP备20005895号-1</a>
+</p>
+    
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+        <p>
+            user: <span id="busuanzi_value_site_uv"></span> site: <span id="busuanzi_value_site_pv"></span> page:
+            <span id="busuanzi_value_page_pv"></span>
+        </p>
+    
+</div>
+
+
+
+<script src="https://memorykki.github.io/media/scripts/util.js"></script>
+
+
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release/build/styles/default.min.css">
+  <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release/build/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad();
+    $(function() {
+        $("#toc").tocify({ selectors: "h2, h3, h4" });
+    });
+  </script>
+</body>
+
+</html>

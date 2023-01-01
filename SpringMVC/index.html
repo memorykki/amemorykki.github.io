@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<title>SpringMVC | Memorykk&#39;s blog</title>
+<link rel="shortcut icon" href="https://memorykki.github.io/favicon.ico">
+<link href="https://memorykki.github.io/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_ntebi130zaa.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Memorykk&#39;s blog » Feed" href="https://memorykki.github.io/atom.xml">
+
+
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-61KQ1XYC4T"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-61KQ1XYC4T');
+  </script>
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?b89f2652bbc909bb41e06c21123d1797";
+      var s = document.getElementsByTagName("script")[0]; 
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+    <script src='//unpkg.com/valine/dist/Valine.min.js'></script>
+
+  <meta name="description" content="Spring MVC 是 Spring 提供的一个基于 MVC 设计模式的轻量级 Web 开发框架,本质上相当于 Servlet。
+
+SpringMVC
+Spring MVC是一个基于Java的实现了MVC设计模式的请求驱动类型的轻量级We..." />
+  <meta name="keywords" content="Spring" />
+
+  <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/2.3.1/css/bootstrap.css" rel="stylesheet">
+  <link href="https://memorykki.github.io/media/css/jquery.tocify.css" rel="stylesheet">
+
+  <script src="https://cdn.bootcdn.net/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+  <script src="https://memorykki.github.io/media/scripts/jquery.ui.core.js"></script>
+  <script src="https://memorykki.github.io/media/scripts/bootstrap.js"></script>
+  <script src="https://memorykki.github.io/media/scripts/jquery.tocify.js"></script>
+
+  <style>
+    #toc .nav-list > .active > a{
+      border: 1px solid #000;
+      border-radius: 10px;
+      background-color: unset;
+    }
+    #toc a {
+      color: #000000;
+    }
+    #toc {
+      border: 0;
+    }
+  </style>
+</head>
+
+<body style="height: auto">
+  <div id="toc" style="right: 20px; top: 80px"></div>
+  <div class="main animated">
+    <div class="header animated fadeInDown">
+  <div class="site_title_container">
+    <div class="site_title">
+      <a href="https://memorykki.github.io">
+        Memorykk&#39;s blog
+      </a>
+    </div>
+  </div>
+  <div class="my_socials">
+    
+      <a href="mailto:memorykki@gmail.com">
+        <i class="iconfont"><svg t="1672505472759" class="icon" viewBox="-400 -400 1600 1600" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="656" width="25" height="25"><path d="M741.12 305.737143H276.114286L511.817143 528.457143z" fill="#606060" p-id="657"></path><path d="M524.8 566.857143a18.651429 18.651429 0 0 1-25.417143 0.182857l-62.72-59.245714L256 668.525714v49.737143h512v-49.737143l-181.577143-161.645714L524.8 566.857143zM256 337.005714v282.514286l153.965714-136.96zM768 619.52V330.788571l-155.245714 150.491429z" fill="#606060" p-id="658"></path><path d="M512 9.142857C234.24 9.142857 9.142857 234.24 9.142857 512S234.24 1014.857143 512 1014.857143 1014.857143 789.76 1014.857143 512 789.76 9.142857 512 9.142857z m292.571429 727.405714c0 10.057143-8.228571 18.285714-18.285715 18.285715H237.714286c-10.057143 0-18.285714-8.228571-18.285715-18.285715V287.451429c0-10.057143 8.228571-18.285714 18.285715-18.285715h548.571428c10.057143 0 18.285714 8.228571 18.285715 18.285715v449.097142z" fill="#606060" p-id="659"></path></svg></i>
+      </a>
+    
+
+    
+      
+        <a href="https://github.com/memorykki" target="_blank">
+          <i class="iconfont icon-github"></i>
+        </a>
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+    <a href="https://memorykki.github.io/atom.xml" target="_blank">
+      <i class="iconfont icon-rss"></i>
+    </a>
+  </div>
+</div>
+
+<div class="header_menu">
+  
+  
+  <a href="/" class="menu">Index</a>
+  
+
+  
+  <a href="/archives" class="menu">Archives</a>
+  
+
+  
+  <a href="/tags" class="menu">Tags</a>
+  
+
+  
+  <a href="/about" class="menu">About</a>
+  
+
+  <div class="gridea-search-div">
+    <form id="gridea-search-form" action="https://memorykki.github.io/search/">
+      <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q" />
+    </form>
+  </div>
+</div>
+
+    <div class="autopagerize_page_element">
+      <div class="content">
+        <div class="post_page">
+          <div class="post animated fadeInDown">
+            <div class="post_title post_detail_title">
+              <h1 class="indicator-free">
+                <a>
+                  SpringMVC</a>
+              </h2>
+              <span class="article-info">2021-08-11, 1855 words, 8 min read</span>
+            </div>
+            <div class="post_content markdown">
+              <p class="md_block">
+                <span class="md_line md_line_start md_line_end">
+                  <p>Spring MVC 是 Spring 提供的一个基于 MVC 设计模式的轻量级 Web 开发框架,本质上相当于 Servlet。</p>
+<!-- more -->
+<h2 id="springmvc">SpringMVC</h2>
+<p>Spring MVC是一个基于Java的实现了MVC设计模式的请求驱动类型的轻量级Web框架，通过把模型-视图-控制器分离，将web层进行职责解耦，把复杂的web应用分成逻辑清晰的几部分，简化开发，减少出错，方便组内开发人员之间的配合。</p>
+<h2 id="核心组件">核心组件</h2>
+<ul>
+<li>
+<p>前端控制器 DispatcherServlet（不需要程序员开发）：处理所有的HTTP请求和响应，减少了其它组件之间的耦合度。</p>
+</li>
+<li>
+<p>处理器映射器HandlerMapping（不需要程序员开发）：根据请求的URL来查找Handler</p>
+</li>
+<li>
+<p>处理器适配器HandlerAdapter</p>
+</li>
+<li>
+<p>处理器Handler（需要程序员开发）</p>
+</li>
+<li>
+<p>视图解析器 ViewResolver（不需要程序员开发）：进行视图的解析，根据视图逻辑名解析成真正的视图（view）</p>
+</li>
+<li>
+<p>视图View（需要程序员开发jsp）：View是一个接口， 它的实现类支持不同的视图类型（jsp，freemarker，pdf等等）</p>
+</li>
+</ul>
+<h2 id="控制器">控制器</h2>
+<p>解析用户输入并将其转换为一个由视图呈现给用户的模型。Spring用一个非常抽象的方式实现了一个控制层，允许用户创建多种用途的控制器。</p>
+<p><strong>单例模式</strong>，所以在多线程访问的时候有线程安全问题，同步会影响性能，解决方案是在控制器里面不能写字段。</p>
+<h2 id="工作原理">工作原理</h2>
+<p><strong>request -&gt; DispatcherServlet -&gt; HandlerMapping -&gt; HandlerAdapter -&gt; Handler -&gt; ModelAndView -&gt; ViewResolver -&gt; View -&gt; reponse</strong></p>
+<p>（1）用户发送请求至前端控制器DispatcherServlet；<br>
+（2） DispatcherServlet收到请求后，调用HandlerMapping处理器映射器，请求获取Handle；<br>
+（3）处理器映射器根据请求url找到具体的处理器，生成处理器对象及处理器拦截器(如果有则生成)一并返回给DispatcherServlet；<br>
+（4）DispatcherServlet 调用 HandlerAdapter处理器适配器；<br>
+（5）HandlerAdapter 经过适配调用 具体处理器(<strong>Handler</strong>，也叫后端控制器)；<br>
+（6）Handler执行完成返回<strong>ModelAndView</strong>；<br>
+（7）HandlerAdapter将Handler执行结果ModelAndView返回给DispatcherServlet；<br>
+（8）DispatcherServlet将ModelAndView传给ViewResolver视图解析器进行解析；<br>
+（9）ViewResolver解析后返回具体<strong>View</strong>；<br>
+（10）DispatcherServlet对View进行渲染视图（即将模型数据填充至视图中）<br>
+（11）DispatcherServlet响应用户。</p>
+<figure data-type="image" tabindex="1"><img src="https://memorykki.github.io/post-images/SpringMVC/image-20211014222339319.png" alt="" loading="lazy"></figure>
+<h2 id="mvc设计模式">MVC设计模式</h2>
+<p>模型（model）- 视图（view）- 控制器（controller），三层架构的设计模式。用于实现前端页面的展现与后端业务数据处理的分离。</p>
+<ul>
+<li>
+<p>分层设计，实现了业务系统各个组件之间的解耦，有利于业务系统的可扩展性，可维护性。</p>
+</li>
+<li>
+<p>有利于系统的并行开发，提升开发效率。</p>
+</li>
+</ul>
+<h2 id="注解">注解</h2>
+<p>@RequestMapping：用于处理请求 url 映射的注解，可用于类或方法上，用于类上表示类父路径。</p>
+<p>@RequestBody：接收http请求的json数据，将json转换为java对象。</p>
+<p>@ResponseBody：将controller方法返回对象转化为json对象响应给客户。</p>
+<p>@RestController == @ResponseBody ＋ @Controller</p>
+<h2 id="controller">@Controller</h2>
+<p>控制器Controller 负责处理由DispatcherServlet 分发的请求，它把用户请求的数据经过业务处理层处理之后封装成一个Model ，然后再把该Model 返回给对应的View 进行展示。</p>
+<p>@Controller 只是定义了一个控制器类，而使用@RequestMapping 注解的方法才是真正处理请求的处理器。</p>
+<h2 id="pathvariable-requestparam">@PathVariable  @RequestParam</h2>
+<p>@PathVariable来获取 @RequestMapping(value = “/page/{id}”, method = RequestMethod.GET)</p>
+<p>@RequestParam用来获得静态的URL请求入参 spring注解时action里用到。</p>
+<h2 id="spring-mvc与struts2">Spring MVC与Struts2</h2>
+<p><strong>相同点</strong></p>
+<p>都是基于mvc的表现层框架，都用于web项目的开发。</p>
+<p><strong>不同点</strong></p>
+<ul>
+<li>
+<p><strong>前端控制器</strong>不一样。Spring MVC的前端控制器是servlet：DispatcherServlet。struts2的前端控制器是filter：StrutsPreparedAndExcutorFilter。</p>
+</li>
+<li>
+<p><strong>请求参数的接收方式</strong>不一样。Spring MVC是使用方法的<strong>形参</strong>接收请求的参数，基于方法的开发，线程安全，可以设计为单例或者多例的开发，推荐使用单例模式的开发（执行效率更高），默认就是<strong>单例</strong>开发模式。struts2是通过<strong>类的成员变量</strong>接收请求的参数，是基于类的开发，线程不安全，只能设计为<strong>多例</strong>的开发。</p>
+</li>
+<li>
+<p>Struts采用值栈存储请求和响应的数据，通过<strong>OGNL</strong>存取数据，Spring MVC通过<strong>参数解析器</strong>是将request请求内容解析，并给方法形参赋值，将数据和视图封装成ModelAndView对象，最后又将ModelAndView中的模型数据通过reques域传输到页面。Jsp视图解析器默认使用jstl。</p>
+</li>
+</ul>
+<h2 id="重定向和转发">重定向和转发</h2>
+<p>转发：在返回值前面加&quot;forward:&quot;，譬如&quot;forward:user.do?name=method4&quot;</p>
+<p>重定向：在返回值前面加&quot;redirect:&quot;，譬如&quot;redirect:http://www.baidu.com&quot;</p>
+<h2 id="中文乱码">中文乱码</h2>
+<h3 id="post">POST</h3>
+<p>在web.xml中配置一个CharacterEncodingFilter过滤器，设置成utf-8；</p>
+<pre><code class="language-xml">&lt;filter&gt;
+    &lt;filter-name&gt;CharacterEncodingFilter&lt;/filter-name&gt;
+    &lt;filter-class&gt;org.springframework.web.filter.CharacterEncodingFilter&lt;/filter-class&gt;
+    &lt;init-param&gt;
+        &lt;param-name&gt;encoding&lt;/param-name&gt;
+        &lt;param-value&gt;utf-8&lt;/param-value&gt;
+    &lt;/init-param&gt;
+&lt;/filter&gt;
+
+&lt;filter-mapping&gt;
+    &lt;filter-name&gt;CharacterEncodingFilter&lt;/filter-name&gt;
+    &lt;url-pattern&gt;/*&lt;/url-pattern&gt;
+&lt;/filter-mapping&gt;
+
+</code></pre>
+<h3 id="get">GET</h3>
+<ul>
+<li>修改tomcat配置文件添加编码与工程编码一致</li>
+</ul>
+<pre><code class="language-xml">&lt;ConnectorURIEncoding=&quot;utf-8&quot; connectionTimeout=&quot;20000&quot; port=&quot;8080&quot; protocol=&quot;HTTP/1.1&quot; redirectPort=&quot;8443&quot;/&gt;
+</code></pre>
+<ul>
+<li>对参数进行重新编码：</li>
+</ul>
+<pre><code class="language-java">String userName = new String(request.getParamter(“userName”).getBytes(“ISO8859-1”),“utf-8”)
+</code></pre>
+<h2 id="异常处理">异常处理</h2>
+<p>可以将异常抛给Spring框架，由Spring框架来处理；我们只需要配置简单的异常处理器，在异常处理器中添视图页面即可。</p>
+<h2 id="拦截get方式提交的方法">拦截GET方式提交的方法</h2>
+<p>可以在@RequestMapping注解里面加上method=RequestMethod.GET。</p>
+<h2 id="获取-request-session">获取 Request、Session</h2>
+<p>直接在方法的形参中声明<strong>request</strong>，Spring MVC就自动把request对象传入。</p>
+<h2 id="拦截的方法里面得到入参">拦截的方法里面得到入参</h2>
+<p>直接在形参里面声明这个参数就可以,但必须<strong>名字</strong>和传过来的参数一样。</p>
+<h2 id="接收对象属性的参数">接收对象属性的参数</h2>
+<p>直接在方法中声明这个对象，Spring MVC就自动会把属性赋值到这个对象里面。</p>
+<h2 id="后台向前台传递数据">后台向前台传递数据</h2>
+<p>通过<strong>ModelMap</strong>对象,可以在这个对象里面调用put方法,把对象加到里面,前台就可以通过el表达式拿到。</p>
+<h2 id="modelmap数据放入session">ModelMap数据放入Session</h2>
+<p>可以在类上面加上@SessionAttributes注解，里面包含的字符串就是要放入session里面的key。</p>
+<h2 id="拦截器">拦截器</h2>
+<p>Spring MVC中的拦截器（Interceptor）类似于Servlet中的过滤器（Filter），它主要用于拦截用户请求并作相应的处理。例如通过拦截器可以进行权限验证、记录请求信息的日志、判断用户是否登录等。</p>
+<ul>
+<li>
+<p>通过实现HandlerInterceptor接口；</p>
+<p>实现 preHandle（之前）、postHandle（之后）、afterCompletion（该方法会在整个请求完成，即视图渲染结束之后执行。可以通过此方法实现一些资源清理、记录日志信息等工作。）</p>
+</li>
+<li>
+<p>通过实现WebRequestInterceptor接口。</p>
+</li>
+</ul>
+<h3 id="单个拦截器">单个拦截器</h3>
+<figure data-type="image" tabindex="2"><img src="https://images2017.cnblogs.com/blog/1240732/201711/1240732-20171114200159843-1367757713.png" alt="img" loading="lazy"></figure>
+<h2 id="多个拦截器">多个拦截器</h2>
+<p>preHandle()方法会按照配置文件中拦截器的配置<strong>顺序</strong>执行，postHandle()方法和afterCompletion()方法则会按照配置顺序的<strong>反序</strong>执行。</p>
+<figure data-type="image" tabindex="3"><img src="https://images2017.cnblogs.com/blog/1240732/201711/1240732-20171114200511874-738520900.png" alt="img" loading="lazy"></figure>
+<h2 id="webapplicationcontext">WebApplicationContext</h2>
+<p>WebApplicationContext 继承了ApplicationContext 并增加了一些WEB应用必备的特有功能，它不同于一般的ApplicationContext ，因为它能处理主题，并找到被关联的servlet。</p>
+<br />
+                  
+              </p>
+            </div>
+            <div class="post_footer">
+              
+                <div class="meta">
+                  <div class="info">
+                    <span class="field tags">
+                      <i class="iconfont icon-tag-sm"></i>
+                      
+                      <a href="https://memorykki.github.io/spring/" class="article-info">
+                        Spring</a>
+                      </span>
+                  </div>
+                </div>
+                
+              
+                <div class="next-post" style="margin-top: 20px;">
+                  <div class="next">下一篇</div>
+                  <a href="https://memorykki.github.io/Spring/">
+                    <h3 class="post-title">
+                      Spring
+                    </h3>
+                  </a>
+                </div>
+                
+            </div>
+          </div>
+          
+          
+          
+              <div id="vcomments"></div>
+              <script>
+                  new Valine({
+                      el: '#vcomments',
+                      appId: 'krF0ARJcxpFRANhJvt8eQvzB-gzGzoHsz',
+                      appKey: 'jNyN9UuoDD1qPl7aXI4bLWYU'
+                  })
+              </script>
+          
+
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer">
+    <div class="footer_slogan">
+        
+    </div>
+
+    
+
+    <p>
+Powered by<a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+Theme<a href="https://github.com/kytrun/gridea-theme-one" target="_blank">One</a>
+<br>
+© 2020-2022<a href="https://memorykk.cn" target="_blank">Memorykk</a>
+<a href="http://beian.miit.gov.cn" target="_blank">陕ICP备20005895号-1</a>
+</p>
+    
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+        <p>
+            user: <span id="busuanzi_value_site_uv"></span> site: <span id="busuanzi_value_site_pv"></span> page:
+            <span id="busuanzi_value_page_pv"></span>
+        </p>
+    
+</div>
+
+
+
+<script src="https://memorykki.github.io/media/scripts/util.js"></script>
+
+
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release/build/styles/default.min.css">
+  <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release/build/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad();
+    $(function() {
+        $("#toc").tocify({ selectors: "h2, h3, h4" });
+    });
+  </script>
+</body>
+
+</html>
